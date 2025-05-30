@@ -54,7 +54,7 @@ flutter:
   # https://flutter.dev/custom-fonts/#from-packages
 
 exclude:
-  - exemples/
+  - exemple/
   - coverage/
   - .github/
   - .vscode/
