@@ -1,6 +1,8 @@
 ## 0.8.0
 
  - Replace `desktop` and `tablet` with `large` and `watch` with `small`. Necessary to handle desktop and tablet sizes correctly based on its platform.
+ - Add more unit tests (Coverage 98.6%).
+ - Add unit test CI.
 
 ## 0.7.1
 
