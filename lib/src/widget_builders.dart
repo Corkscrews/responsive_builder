@@ -15,23 +15,30 @@ class ResponsiveBuilder extends StatelessWidget {
 
   final ScreenBreakpoints? breakpoints;
   final RefinedBreakpoints? refinedBreakpoints;
+  final bool? isWebOrDesktop;
 
   const ResponsiveBuilder({
     Key? key,
     required this.builder,
     this.breakpoints,
     this.refinedBreakpoints,
+    this.isWebOrDesktop,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, boxConstraints) {
-      var mediaQuery = MediaQuery.of(context);
-      var sizingInformation = SizingInformation(
-        deviceScreenType: getDeviceType(mediaQuery.size, breakpoints),
+      final mediaQuery = MediaQuery.of(context);
+      final sizingInformation = SizingInformation(
+        deviceScreenType: getDeviceType(
+          mediaQuery.size,
+          breakpoints,
+          isWebOrDesktop,
+        ),
         refinedSize: getRefinedSize(
           mediaQuery.size,
           refinedBreakpoint: refinedBreakpoints,
+          isWebOrDesktop: isWebOrDesktop,
         ),
         screenSize: mediaQuery.size,
         localWidgetSize:
@@ -65,7 +72,7 @@ class OrientationLayoutBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) {
-        var orientation = MediaQuery.of(context).orientation;
+        final orientation = MediaQuery.of(context).orientation;
         if (mode != OrientationLayoutBuilderMode.portrait &&
             (orientation == Orientation.landscape ||
                 mode == OrientationLayoutBuilderMode.landscape)) {
@@ -90,6 +97,7 @@ class OrientationLayoutBuilder extends StatelessWidget {
 /// [desktop] will be built if width is greater than 950
 class ScreenTypeLayout extends StatelessWidget {
   final ScreenBreakpoints? breakpoints;
+  final bool? isWebOrDesktop;
 
   final WidgetBuilder? watch;
   final WidgetBuilder? mobile;
@@ -102,6 +110,7 @@ class ScreenTypeLayout extends StatelessWidget {
   ScreenTypeLayout({
     Key? key,
     this.breakpoints,
+    this.isWebOrDesktop = null,
     Widget? watch,
     required Widget mobile,
     Widget? tablet,
@@ -117,6 +126,7 @@ class ScreenTypeLayout extends StatelessWidget {
   ScreenTypeLayout.builder({
     Key? key,
     this.breakpoints,
+    this.isWebOrDesktop = null,
     this.watch,
     this.mobile,
     this.tablet,
@@ -143,7 +153,13 @@ class ScreenTypeLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return ResponsiveBuilder(
       breakpoints: breakpoints,
+      isWebOrDesktop: isWebOrDesktop,
       builder: (context, sizingInformation) {
+
+        if (ResponsiveAppUtil.preferDesktop) {
+          return desktop?.call(context) ?? mobile!(context);
+        }
+
         // If we're at desktop size
         if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
           // If we have supplied the desktop layout then display that
@@ -165,11 +181,7 @@ class ScreenTypeLayout extends StatelessWidget {
           if (mobile != null) return mobile!(context);
         }
 
-        // If none of the layouts above are supplied we use the prefered layout based on the flag
-        final buildDesktopLayout =
-            ResponsiveAppUtil.preferDesktop && desktop != null;
-
-        return buildDesktopLayout ? desktop!(context) : mobile!(context);
+        return mobile!(context);
       },
     );
   }
@@ -185,6 +197,7 @@ class ScreenTypeLayout extends StatelessWidget {
 /// [small] will be built if width is less than 720 on Desktops, 600 on Tablets, and 320 on Mobiles
 class RefinedLayoutBuilder extends StatelessWidget {
   final RefinedBreakpoints? refinedBreakpoints;
+  final bool? isWebOrDesktop;
 
   final WidgetBuilder? extraLarge;
   final WidgetBuilder? large;
@@ -194,6 +207,7 @@ class RefinedLayoutBuilder extends StatelessWidget {
   const RefinedLayoutBuilder({
     Key? key,
     this.refinedBreakpoints,
+    this.isWebOrDesktop,
     this.extraLarge,
     this.large,
     required this.normal,
@@ -204,6 +218,7 @@ class RefinedLayoutBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return ResponsiveBuilder(
       refinedBreakpoints: refinedBreakpoints,
+      isWebOrDesktop: isWebOrDesktop,
       builder: (context, sizingInformation) {
         // If we're at extra large size
         if (sizingInformation.refinedSize == RefinedSize.extraLarge) {

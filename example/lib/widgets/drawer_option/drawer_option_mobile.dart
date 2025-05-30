@@ -35,7 +35,8 @@ class DrawerOptionMobilePortrait extends StatelessWidget {
 
 class DrawerOptionMobileLandscape extends StatelessWidget {
   final IconData? iconData;
-  const DrawerOptionMobileLandscape({Key? key, this.iconData}) : super(key: key);
+  const DrawerOptionMobileLandscape({Key? key, this.iconData})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

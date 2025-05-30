@@ -1,4 +1,6 @@
+import 'package:example/views/home/content_view.dart';
 import 'package:example/widgets/app_drawer/app_drawer.dart';
+
 /// Contains the widgets that will be used for Mobile layout of home,
 /// portrait and landscape
 
@@ -13,8 +15,9 @@ class HomeMobilePortrait extends StatelessWidget {
     return Scaffold(
       key: _scaffoldKey,
       drawer: AppDrawer(),
-      body: Column(
+      body: Stack(
         children: <Widget>[
+          ContentWidget(title: "Mobile portrait detected"),
           Padding(
             padding: const EdgeInsets.all(16),
             child: IconButton(
@@ -36,9 +39,12 @@ class HomeMobileLandscape extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(children: <Widget>[
-        AppDrawer()
-      ],),
+      body: Row(
+        children: <Widget>[
+          AppDrawer(),
+          ContentWidget(title: "Mobile landscape detected"),
+        ],
+      ),
     );
   }
 }

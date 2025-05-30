@@ -146,7 +146,7 @@ If you want to set the breakpoints for the responsive builders once you can call
 ```dart
 void main() {
   ResponsiveSizingConfig.instance.setCustomBreakpoints(
-    ScreenBreakpoints(desktop: 800, tablet: 550, watch: 200),
+    ScreenBreakpoints(large: 550, small: 200),
   );
   runApp(MyApp());
 }

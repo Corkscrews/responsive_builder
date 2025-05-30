@@ -43,19 +43,17 @@ class SizingInformation {
 ///
 /// Overrides the defaults
 class ScreenBreakpoints {
-  final double watch;
-  final double tablet;
-  final double desktop;
+  final double small;
+  final double large;
 
   const ScreenBreakpoints({
-    required this.desktop,
-    required this.tablet,
-    required this.watch,
+    required this.small,
+    required this.large,
   });
 
   @override
   String toString() {
-    return "Desktop: $desktop, Tablet: $tablet, Watch: $watch";
+    return "Large: $large, Small: $small";
   }
 }
 
@@ -95,8 +93,7 @@ class RefinedBreakpoints {
 
   @override
   String toString() {
-    return "Desktop: Small - $desktopSmall Normal - $desktopNormal Large - $desktopLarge ExtraLarge - $desktopExtraLarge" +
-        "\nTablet: Small - $tabletSmall Normal - $tabletNormal Large - $tabletLarge ExtraLarge - $tabletExtraLarge" +
+    return "Tablet: Small - $tabletSmall Normal - $tabletNormal Large - $tabletLarge ExtraLarge - $tabletExtraLarge" +
         "\nMobile: Small - $mobileSmall Normal - $mobileNormal Large - $mobileLarge ExtraLarge - $mobileExtraLarge";
   }
 }

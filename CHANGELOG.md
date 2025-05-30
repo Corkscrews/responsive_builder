@@ -1,3 +1,7 @@
+## 0.8.0
+
+ - Replace `desktop` and `tablet` with `large` and `watch` with `small`. Necessary to handle desktop and tablet sizes correctly based on its platform.
+
 ## 0.7.1
 
 - Fixes [#53](https://github.com/FilledStacks/responsive_builder/issues/53)

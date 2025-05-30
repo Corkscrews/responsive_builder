@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
@@ -5,97 +7,95 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'device_width.dart' if (dart.library.js) 'device_width_web.dart'
     as width;
 
+final _isWebOrDesktop =
+    kIsWeb || Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+
 /// Returns the [DeviceScreenType] that the application is currently running on
-DeviceScreenType getDeviceType(
-  Size size, [
-  ScreenBreakpoints? breakpoint,
-]) {
-  double deviceWidth = width.deviceWidth(size);
+DeviceScreenType getDeviceType(Size size,
+    [ScreenBreakpoints? breakpoint = null, bool? isWebOrDesktop]) {
+  isWebOrDesktop = isWebOrDesktop ??= _isWebOrDesktop;
+  double deviceWidth = width.deviceWidth(size, isWebOrDesktop);
 
   // Replaces the defaults with the user defined definitions
   if (breakpoint != null) {
-    if (deviceWidth > breakpoint.desktop) {
-      return DeviceScreenType.desktop;
+    if (deviceWidth > breakpoint.large) {
+      return _desktopOrTablet(isWebOrDesktop);
     }
 
-    if (deviceWidth > breakpoint.tablet) {
-      return DeviceScreenType.tablet;
-    }
-
-    if (deviceWidth < breakpoint.watch) {
+    if (deviceWidth < breakpoint.small) {
       return DeviceScreenType.watch;
     }
-  } else {
-    // If no user defined definitions are passed through use the defaults
-    if (deviceWidth >= ResponsiveSizingConfig.instance.breakpoints.desktop) {
-      return DeviceScreenType.desktop;
-    }
+  }
 
-    if (deviceWidth >= ResponsiveSizingConfig.instance.breakpoints.tablet) {
-      return DeviceScreenType.tablet;
-    }
+  if (deviceWidth >= ResponsiveSizingConfig.instance.breakpoints.large) {
+    return _desktopOrTablet(isWebOrDesktop);
+  }
 
-    if (deviceWidth < ResponsiveSizingConfig.instance.breakpoints.watch) {
-      return DeviceScreenType.watch;
-    }
+  if (deviceWidth < ResponsiveSizingConfig.instance.breakpoints.small) {
+    return DeviceScreenType.watch;
   }
 
   return DeviceScreenType.mobile;
 }
 
+// coverage:ignore-start
+DeviceScreenType _desktopOrTablet(bool? isWebOrDesktop) =>
+    (isWebOrDesktop ?? _isWebOrDesktop)
+        ? DeviceScreenType.desktop
+        : DeviceScreenType.tablet;
+// coverage:ignore-end
+
 /// Returns the [RefindedSize] for each device that the application is currently running on
 RefinedSize getRefinedSize(
   Size size, {
   RefinedBreakpoints? refinedBreakpoint,
-  bool isWebOrDesktop = kIsWeb,
+  bool? isWebOrDesktop,
 }) {
-  DeviceScreenType deviceScreenType = getDeviceType(size);
-  double deviceWidth = size.shortestSide;
+  isWebOrDesktop = isWebOrDesktop ?? _isWebOrDesktop;
+  double deviceWidth = isWebOrDesktop ? size.width : size.shortestSide;
 
-  if (isWebOrDesktop) {
-    deviceWidth = size.width;
-  }
+  DeviceScreenType deviceScreenType = getDeviceType(size, null, isWebOrDesktop);
 
   // Replaces the defaults with the user defined definitions
   if (refinedBreakpoint != null) {
     if (deviceScreenType == DeviceScreenType.desktop) {
-      if (deviceWidth > refinedBreakpoint.desktopExtraLarge) {
+      if (deviceWidth >= refinedBreakpoint.desktopExtraLarge) {
         return RefinedSize.extraLarge;
       }
 
-      if (deviceWidth > refinedBreakpoint.desktopLarge) {
+      if (deviceWidth >= refinedBreakpoint.desktopLarge) {
         return RefinedSize.large;
       }
 
-      if (deviceWidth > refinedBreakpoint.desktopNormal) {
+      if (deviceWidth >= refinedBreakpoint.desktopNormal) {
         return RefinedSize.normal;
       }
     }
 
     if (deviceScreenType == DeviceScreenType.tablet) {
-      if (deviceWidth > refinedBreakpoint.tabletExtraLarge) {
+      if (deviceWidth >= refinedBreakpoint.tabletExtraLarge) {
         return RefinedSize.extraLarge;
       }
 
-      if (deviceWidth > refinedBreakpoint.tabletLarge) {
+      if (deviceWidth >= refinedBreakpoint.tabletLarge) {
         return RefinedSize.large;
       }
 
-      if (deviceWidth > refinedBreakpoint.tabletNormal) {
+      if (deviceWidth >= refinedBreakpoint.tabletNormal) {
         return RefinedSize.normal;
       }
     }
 
     if (deviceScreenType == DeviceScreenType.mobile) {
-      if (deviceWidth > refinedBreakpoint.mobileExtraLarge) {
+      if (deviceWidth >= refinedBreakpoint.mobileExtraLarge) {
         return RefinedSize.extraLarge;
       }
 
-      if (deviceWidth > refinedBreakpoint.mobileLarge) {
+      if (deviceWidth >= refinedBreakpoint.mobileLarge) {
         return RefinedSize.large;
       }
 
-      if (deviceWidth > refinedBreakpoint.mobileNormal) {
+      if (deviceWidth >= refinedBreakpoint.mobileNormal) {
         return RefinedSize.normal;
       }
     }
@@ -103,62 +103,56 @@ RefinedSize getRefinedSize(
     if (deviceScreenType == DeviceScreenType.watch) {
       return RefinedSize.normal;
     }
-  } else {
-    // If no user defined definitions are passed through use the defaults
-
-    // Desktop
-    if (deviceScreenType == DeviceScreenType.desktop) {
-      if (deviceWidth >=
-          ResponsiveSizingConfig
-              .instance.refinedBreakpoints.desktopExtraLarge) {
-        return RefinedSize.extraLarge;
-      }
-
-      if (deviceWidth >=
-          ResponsiveSizingConfig.instance.refinedBreakpoints.desktopLarge) {
-        return RefinedSize.large;
-      }
-
-      if (deviceWidth >=
-          ResponsiveSizingConfig.instance.refinedBreakpoints.desktopNormal) {
-        return RefinedSize.normal;
-      }
+  }
+  // If no user defined definitions are passed through use the defaults
+  if (deviceScreenType == DeviceScreenType.desktop) {
+    if (deviceWidth >=
+        ResponsiveSizingConfig.instance.refinedBreakpoints.desktopExtraLarge) {
+      return RefinedSize.extraLarge;
     }
 
-    // Tablet
-    if (deviceScreenType == DeviceScreenType.tablet) {
-      if (deviceWidth >=
-          ResponsiveSizingConfig.instance.refinedBreakpoints.tabletExtraLarge) {
-        return RefinedSize.extraLarge;
-      }
-
-      if (deviceWidth >=
-          ResponsiveSizingConfig.instance.refinedBreakpoints.tabletLarge) {
-        return RefinedSize.large;
-      }
-
-      if (deviceWidth >=
-          ResponsiveSizingConfig.instance.refinedBreakpoints.tabletNormal) {
-        return RefinedSize.normal;
-      }
+    if (deviceWidth >=
+        ResponsiveSizingConfig.instance.refinedBreakpoints.desktopLarge) {
+      return RefinedSize.large;
     }
 
-    // Mobile
-    if (deviceScreenType == DeviceScreenType.mobile) {
-      if (deviceWidth >=
-          ResponsiveSizingConfig.instance.refinedBreakpoints.mobileExtraLarge) {
-        return RefinedSize.extraLarge;
-      }
+    if (deviceWidth >=
+        ResponsiveSizingConfig.instance.refinedBreakpoints.desktopNormal) {
+      return RefinedSize.normal;
+    }
+  }
 
-      if (deviceWidth >=
-          ResponsiveSizingConfig.instance.refinedBreakpoints.mobileLarge) {
-        return RefinedSize.large;
-      }
+  if (deviceScreenType == DeviceScreenType.tablet) {
+    if (deviceWidth >=
+        ResponsiveSizingConfig.instance.refinedBreakpoints.tabletExtraLarge) {
+      return RefinedSize.extraLarge;
+    }
 
-      if (deviceWidth >=
-          ResponsiveSizingConfig.instance.refinedBreakpoints.mobileNormal) {
-        return RefinedSize.normal;
-      }
+    if (deviceWidth >=
+        ResponsiveSizingConfig.instance.refinedBreakpoints.tabletLarge) {
+      return RefinedSize.large;
+    }
+
+    if (deviceWidth >=
+        ResponsiveSizingConfig.instance.refinedBreakpoints.tabletNormal) {
+      return RefinedSize.normal;
+    }
+  }
+
+  if (deviceScreenType == DeviceScreenType.mobile) {
+    if (deviceWidth >=
+        ResponsiveSizingConfig.instance.refinedBreakpoints.mobileExtraLarge) {
+      return RefinedSize.extraLarge;
+    }
+
+    if (deviceWidth >=
+        ResponsiveSizingConfig.instance.refinedBreakpoints.mobileLarge) {
+      return RefinedSize.large;
+    }
+
+    if (deviceWidth >=
+        ResponsiveSizingConfig.instance.refinedBreakpoints.mobileNormal) {
+      return RefinedSize.normal;
     }
   }
 
@@ -168,12 +162,14 @@ RefinedSize getRefinedSize(
 /// Will return one of the values passed in for the device it's running on
 T getValueForScreenType<T>({
   required BuildContext context,
+  bool? isWebOrDesktop,
   required T mobile,
   T? tablet,
   T? desktop,
   T? watch,
 }) {
-  var deviceScreenType = getDeviceType(MediaQuery.of(context).size);
+  DeviceScreenType deviceScreenType =
+      getDeviceType(MediaQuery.of(context).size, null, isWebOrDesktop);
   // If we're at desktop size
   if (deviceScreenType == DeviceScreenType.desktop) {
     // If we have supplied the desktop layout then display that
@@ -208,7 +204,7 @@ T getValueForRefinedSize<T>({
   T? extraLarge,
   T? small,
 }) {
-  var refinedSize = getRefinedSize(MediaQuery.of(context).size);
+  RefinedSize refinedSize = getRefinedSize(MediaQuery.of(context).size);
   // If we're at extra large size
   if (refinedSize == RefinedSize.extraLarge) {
     // If we have supplied the extra large layout then display that
@@ -224,10 +220,11 @@ T getValueForRefinedSize<T>({
     if (normal != null) return normal;
   }
 
-  if (refinedSize == RefinedSize.normal) {
-    // If we have supplied the normal layout then display that
-    if (normal != null) return normal;
-  }
+  // No need to verify normal size, it's the default
+  // if (refinedSize == RefinedSize.normal) {
+  //   // If we have supplied the normal layout then display that
+  //   if (normal != null) return normal;
+  // }
 
   if (refinedSize == RefinedSize.small) {
     // If we have supplied the small layout then display that
@@ -242,6 +239,7 @@ class ScreenTypeValueBuilder<T> {
   @Deprecated('Use better named global function getValueForScreenType')
   T getValueForType({
     required BuildContext context,
+    bool? isWebOrDesktop,
     required T mobile,
     T? tablet,
     T? desktop,
@@ -249,6 +247,7 @@ class ScreenTypeValueBuilder<T> {
   }) {
     return getValueForScreenType(
       context: context,
+      isWebOrDesktop: isWebOrDesktop,
       mobile: mobile,
       tablet: tablet,
       desktop: desktop,

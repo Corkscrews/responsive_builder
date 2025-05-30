@@ -12,9 +12,8 @@ class ResponsiveSizingConfig {
   }
 
   static const ScreenBreakpoints _defaultBreakPoints = const ScreenBreakpoints(
-    desktop: 950,
-    tablet: 600,
-    watch: 300,
+    large: 600,
+    small: 300,
   );
 
   ScreenBreakpoints? _customBreakPoints;
