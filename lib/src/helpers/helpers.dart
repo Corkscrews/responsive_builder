@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder2/responsive_builder2.dart';
 
-import 'device_width.dart' if (dart.library.js) 'device_width_web.dart'
+// Author: https://github.com/fastogt/responsive_builder/tree/master
+import 'device_width.dart' if (dart.library.js_interop) 'device_width_web.dart'
     as width;
 
 final _isWebOrDesktop =

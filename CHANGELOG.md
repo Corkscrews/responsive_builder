@@ -1,3 +1,7 @@
+## 0.8.2
+
+ - Add WASM support (https://github.com/FilledStacks/responsive_builder/pull/65)
+
 ## 0.8.1
 
  - Correct `README.md` configuration steps.
