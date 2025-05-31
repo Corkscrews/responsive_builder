@@ -1,3 +1,8 @@
+## 0.8.1
+
+ - Correct `README.md` configuration steps.
+ - Remove `example/test` folder.
+
 ## 0.8.0
 
  - Replace `desktop` and `tablet` with `large` and `watch` with `small`. Necessary to handle desktop and tablet sizes correctly based on its platform.
