@@ -5,6 +5,6 @@ coverage/
 .vscode/
 .idea/
 .dart_tool/
-.devtools_options.yaml
+devtools_options.yaml
 responsive-builder-banner.jpeg
 responsive_example.gif
