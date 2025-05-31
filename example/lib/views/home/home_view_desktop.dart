@@ -12,9 +12,7 @@ class HomeViewDesktop extends StatelessWidget {
         orientation == Orientation.portrait ? "portrait" : "landscape";
     final children = [
       Expanded(
-        child: ContentWidget(
-          title: "Desktop $orientationText detected"
-        ),
+        child: ContentWidget(title: "Desktop $orientationText detected"),
       ),
       AppDrawer()
     ];

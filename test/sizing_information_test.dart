@@ -28,7 +28,8 @@ void main() {
       expect(info.isSmall, isFalse);
     });
 
-    test('isMobile is true when deviceScreenType == DeviceScreenType.mobile', () {
+    test('isMobile is true when deviceScreenType == DeviceScreenType.mobile',
+        () {
       final info = SizingInformation(
         deviceScreenType: DeviceScreenType.mobile,
         refinedSize: RefinedSize.normal,

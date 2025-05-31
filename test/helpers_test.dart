@@ -141,7 +141,6 @@ void main() {
       final screenType = getDeviceType(Size(399, 1000), breakPoint);
       expect(screenType, DeviceScreenType.watch);
     });
-
   });
 
   group('getRefinedSize - Custom break points -', () {
@@ -438,6 +437,7 @@ void main() {
           ),
         );
       }
+
       await testWithSize(
         tester: tester,
         size: const Size(4100, 1000),
@@ -536,5 +536,4 @@ void main() {
       );
     });
   });
-
 }

@@ -53,11 +53,14 @@ void main() {
       expect(find.text('Landscape'), findsOneWidget);
     });
 
-    testWidgets('calls landscape builder when mode is landscape regardless of orientation', (tester) async {
+    testWidgets(
+        'calls landscape builder when mode is landscape regardless of orientation',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
-            data: const MediaQueryData(size: Size(400, 800)), // Portrait orientation
+            data: const MediaQueryData(
+                size: Size(400, 800)), // Portrait orientation
             child: OrientationLayoutBuilder(
               mode: OrientationLayoutBuilderMode.landscape,
               portrait: (_) => const Text('Portrait'),
@@ -103,7 +106,8 @@ void main() {
       expect(find.text('Watch'), findsOneWidget);
     });
 
-    testWidgets('shows mobile layout when width is in mobile range', (tester) async {
+    testWidgets('shows mobile layout when width is in mobile range',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -121,7 +125,8 @@ void main() {
       expect(find.text('Mobile'), findsOneWidget);
     });
 
-    testWidgets('shows tablet layout when width is in tablet range', (tester) async {
+    testWidgets('shows tablet layout when width is in tablet range',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -139,7 +144,8 @@ void main() {
       expect(find.text('Tablet'), findsOneWidget);
     });
 
-    testWidgets('shows desktop layout when width is in desktop range', (tester) async {
+    testWidgets('shows desktop layout when width is in desktop range',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -157,7 +163,9 @@ void main() {
       expect(find.text('Desktop'), findsOneWidget);
     });
 
-    testWidgets('shows desktop layout when preferDesktop is true and both mobile and desktop are supplied', (tester) async {
+    testWidgets(
+        'shows desktop layout when preferDesktop is true and both mobile and desktop are supplied',
+        (tester) async {
       // Set preferDesktop to true
       ResponsiveAppUtil.preferDesktop = true;
       await tester.pumpWidget(
@@ -178,7 +186,6 @@ void main() {
       // Reset preferDesktop to false for other tests
       ResponsiveAppUtil.preferDesktop = false;
     });
-    
   });
 
   group('ScreenTypeLayout.builder2', () {
@@ -222,13 +229,12 @@ void main() {
       );
       expect(find.text('Watch2'), findsOneWidget, reason: 'Watch2 not found');
       expect(info, isNotNull, reason: 'info is null');
-      expect(
-        info!.deviceScreenType.toString(), 
-        contains('watch'), 
-        reason: 'info is not watch');
+      expect(info!.deviceScreenType.toString(), contains('watch'),
+          reason: 'info is not watch');
     });
 
-    testWidgets('shows mobile layout when width is in mobile range', (tester) async {
+    testWidgets('shows mobile layout when width is in mobile range',
+        (tester) async {
       SizingInformation? info;
       await tester.pumpWidget(
         MaterialApp(
@@ -252,7 +258,8 @@ void main() {
       expect(info!.isPhone, isTrue, reason: 'info is not phone');
     });
 
-    testWidgets('shows tablet layout when width is in tablet range', (tester) async {
+    testWidgets('shows tablet layout when width is in tablet range',
+        (tester) async {
       SizingInformation? info;
       await tester.pumpWidget(
         MaterialApp(
@@ -276,7 +283,8 @@ void main() {
       expect(info!.isTablet, isTrue, reason: 'info is not tablet');
     });
 
-    testWidgets('shows desktop layout when width is in desktop range', (tester) async {
+    testWidgets('shows desktop layout when width is in desktop range',
+        (tester) async {
       SizingInformation? info;
       await tester.pumpWidget(
         MaterialApp(
@@ -295,12 +303,14 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Desktop2'), findsOneWidget, reason: 'Desktop2 not found');
+      expect(find.text('Desktop2'), findsOneWidget,
+          reason: 'Desktop2 not found');
       expect(info, isNotNull, reason: 'info is null');
       expect(info!.isDesktop, isTrue, reason: 'info is not desktop');
     });
 
-    testWidgets('shows tablet layout when width is in desktop range', (tester) async {
+    testWidgets('shows tablet layout when width is in desktop range',
+        (tester) async {
       SizingInformation? info;
       await tester.pumpWidget(
         MaterialApp(
@@ -318,12 +328,15 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Tablet2'), findsOneWidget, reason: 'Desktop2 not found');
+      expect(find.text('Tablet2'), findsOneWidget,
+          reason: 'Desktop2 not found');
       expect(info, isNotNull, reason: 'info is null');
       expect(info!.isDesktop, isTrue, reason: 'info is not desktop');
     });
 
-    testWidgets('shows desktop layout when preferDesktop is true and both mobile and desktop are supplied', (tester) async {
+    testWidgets(
+        'shows desktop layout when preferDesktop is true and both mobile and desktop are supplied',
+        (tester) async {
       ResponsiveAppUtil.preferDesktop = true;
       SizingInformation? info;
       await tester.pumpWidget(
@@ -343,7 +356,8 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Desktop2'), findsOneWidget, reason: 'Desktop2 not found');
+      expect(find.text('Desktop2'), findsOneWidget,
+          reason: 'Desktop2 not found');
       expect(info, isNotNull, reason: 'info is null');
       // Despite being a phone, it's rendering the desktop layout
       expect(info!.isDesktop, isFalse, reason: 'info is not desktop');
@@ -351,7 +365,9 @@ void main() {
       ResponsiveAppUtil.preferDesktop = false;
     });
 
-    testWidgets('shows desktop layout when preferDesktop is true and both mobile and desktop are supplied', (tester) async {
+    testWidgets(
+        'shows desktop layout when preferDesktop is true and both mobile and desktop are supplied',
+        (tester) async {
       ResponsiveAppUtil.preferDesktop = true;
       SizingInformation? info;
       await tester.pumpWidget(
@@ -406,7 +422,8 @@ void main() {
       expect(find.text('Watch'), findsOneWidget);
     });
 
-    testWidgets('shows mobile layout when width is in mobile range', (tester) async {
+    testWidgets('shows mobile layout when width is in mobile range',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -453,7 +470,8 @@ void main() {
       expect(find.text('Normal'), findsOneWidget);
     });
 
-    testWidgets('shows extraLarge layout when width is very large', (tester) async {
+    testWidgets('shows extraLarge layout when width is very large',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -484,7 +502,9 @@ void main() {
       expect(find.text('Large'), findsOneWidget);
     });
 
-    testWidgets('shows normal layout when width is large but no large builder is provided', (tester) async {
+    testWidgets(
+        'shows normal layout when width is large but no large builder is provided',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -514,7 +534,8 @@ void main() {
       expect(find.text('Small'), findsOneWidget);
     });
 
-    testWidgets('shows normal layout when width is large and large is null', (tester) async {
+    testWidgets('shows normal layout when width is large and large is null',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -529,7 +550,9 @@ void main() {
       expect(find.text('Normal'), findsOneWidget);
     });
 
-    testWidgets('shows normal layout when width is extra large and large is null', (tester) async {
+    testWidgets(
+        'shows normal layout when width is extra large and large is null',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -544,5 +567,4 @@ void main() {
       expect(find.text('Normal'), findsOneWidget);
     });
   });
-
 }

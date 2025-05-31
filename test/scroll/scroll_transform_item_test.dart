@@ -5,7 +5,8 @@ import 'package:responsive_builder2/responsive_builder2.dart';
 // Replace this import with the actual path to your widget
 
 void main() {
-  testWidgets('ScrollTransformItem applies offset and scale', (WidgetTester tester) async {
+  testWidgets('ScrollTransformItem applies offset and scale',
+      (WidgetTester tester) async {
     final scrollController = ScrollController();
 
     await tester.pumpWidget(
@@ -20,7 +21,8 @@ void main() {
                 ScrollTransformItem(
                   offsetBuilder: (offset) => Offset(offset / 10, 0),
                   scaleBuilder: (offset) => 1 + offset / 500,
-                  builder: (offset) => Text('Offset: $offset', key: ValueKey('offsetText')),
+                  builder: (offset) =>
+                      Text('Offset: $offset', key: ValueKey('offsetText')),
                 ),
                 SizedBox(height: 1000),
               ],

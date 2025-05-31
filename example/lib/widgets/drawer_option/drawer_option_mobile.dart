@@ -14,20 +14,20 @@ class DrawerOptionMobilePortrait extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16.0),
       child: Row(
-      children: <Widget>[
-        SizedBox(
-          width: 16,
-        ),
-        Icon(
-          iconData,
-          size: 25,
-        ),
-        SizedBox(
-          width: 16,
-        ),
-        Text(
-          title!,
-          style: TextStyle(fontSize: 21),
+        children: <Widget>[
+          SizedBox(
+            width: 16,
+          ),
+          Icon(
+            iconData,
+            size: 25,
+          ),
+          SizedBox(
+            width: 16,
+          ),
+          Text(
+            title!,
+            style: TextStyle(fontSize: 21),
           )
         ],
       ),

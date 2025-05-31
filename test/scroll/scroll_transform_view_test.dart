@@ -16,7 +16,8 @@ class DummyScrollTransformItem extends ScrollTransformItem {
 }
 
 void main() {
-  testWidgets('ScrollTransformView passes offset to children and updates on scroll',
+  testWidgets(
+      'ScrollTransformView passes offset to children and updates on scroll',
       (WidgetTester tester) async {
     // Widget under test with a ScrollTransformItem inside the ScrollTransformView
     final testWidget = MaterialApp(
@@ -26,7 +27,8 @@ void main() {
             ScrollTransformItem(
               offsetBuilder: (offset) => Offset(offset / 5, 0),
               scaleBuilder: (offset) => 1 + offset / 200,
-              builder: (offset) => Text('Offset: $offset', key: ValueKey('offsetText')),
+              builder: (offset) =>
+                  Text('Offset: $offset', key: ValueKey('offsetText')),
             ),
             // Add spacing to enable scrolling
             ScrollTransformItem(
@@ -51,7 +53,8 @@ void main() {
     expect(textFinder, findsOneWidget);
 
     final textWidget = tester.widget<Text>(textFinder);
-    final offsetValue = double.tryParse(textWidget.data!.replaceAll('Offset: ', ''));
+    final offsetValue =
+        double.tryParse(textWidget.data!.replaceAll('Offset: ', ''));
 
     // Assert the offset was updated due to scroll
     expect(offsetValue, greaterThan(0.0));

@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-
+import 'package:flutter/widgets.dart';
 import '../responsive_builder2.dart';
 
 typedef WidgetBuilder = Widget Function(BuildContext);
@@ -140,7 +139,7 @@ class ScreenTypeLayout extends StatelessWidget {
   static WidgetBuilder? _builderOrNull(Widget? widget) {
     return widget == null ? null : (BuildContext context) => widget;
   }
-  
+
   ScreenTypeLayout.builder({
     Key? key,
     this.breakpoints,

@@ -46,10 +46,9 @@ class AppDrawerTabletLandscape extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SingleChildScrollView(
-              child: Column(
-                children: AppDrawer.getDrawerOptions(),
-              )
-            ),
+                child: Column(
+              children: AppDrawer.getDrawerOptions(),
+            )),
           ],
         ),
       ),

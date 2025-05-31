@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'device_screen_type.dart';
 
 /// Contains sizing information to make responsive choices for the current screen
@@ -13,9 +13,11 @@ class SizingInformation {
   @Deprecated('Use isPhone instead')
   bool get isMobile => isPhone;
 
-  bool get isPhone => deviceScreenType == DeviceScreenType.phone 
+  bool get isPhone =>
+      deviceScreenType == DeviceScreenType.phone
+      ||
       // ignore: deprecated_member_use_from_same_package
-      || deviceScreenType == DeviceScreenType.mobile;
+      deviceScreenType == DeviceScreenType.mobile;
 
   bool get isTablet => deviceScreenType == DeviceScreenType.tablet;
 

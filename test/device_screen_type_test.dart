@@ -40,4 +40,4 @@ void main() {
       expect(RefinedSize.normal <= RefinedSize.normal, isTrue);
     });
   });
-} 
+}
