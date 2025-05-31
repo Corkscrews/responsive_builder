@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_builder2/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder2.dart';
 
 import 'drawer_option_mobile.dart';
 import 'drawer_option_tablet.dart';

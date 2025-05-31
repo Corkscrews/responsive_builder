@@ -1,8 +1,8 @@
-import 'package:example/views/home/home_view_desktop.dart';
-import 'package:example/views/home/home_view_mobile.dart';
-import 'package:example/views/home/home_view_tablet.dart';
+import 'package:responsive_builder2_example/views/home/home_view_desktop.dart';
+import 'package:responsive_builder2_example/views/home/home_view_mobile.dart';
+import 'package:responsive_builder2_example/views/home/home_view_tablet.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_builder2/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder2.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({Key? key}) : super(key: key);

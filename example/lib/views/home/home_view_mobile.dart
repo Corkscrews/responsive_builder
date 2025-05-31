@@ -1,5 +1,5 @@
-import 'package:example/views/home/content_view.dart';
-import 'package:example/widgets/app_drawer/app_drawer.dart';
+import 'package:responsive_builder2_example/views/home/content_view.dart';
+import 'package:responsive_builder2_example/widgets/app_drawer/app_drawer.dart';
 import 'package:flutter/material.dart';
 
 /// Contains the widget that will be used for Mobile layout of home,

@@ -1,6 +1,6 @@
-import 'package:example/views/home/home_view.dart';
+import 'package:responsive_builder2_example/views/home/home_view.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_builder2/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder2.dart';
 
 void main() => runApp(MyApp());
 
