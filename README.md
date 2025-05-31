@@ -15,7 +15,7 @@ If you follow along with the series you will have a complete understanding of ho
 Add responsive_builder as dependency to your pubspec file.
 
 ```
-responsive_builder2: ^0.8.3
+responsive_builder2: ^0.8.4
 ```
 
 ## Usage
