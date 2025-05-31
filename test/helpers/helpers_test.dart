@@ -7,7 +7,9 @@ void main() {
     test('When on device with width between 600 and 300 should return mobile',
         () async {
       final screenType = getDeviceType(Size(599, 800), null, false);
-      expect(screenType, DeviceScreenType.mobile);
+      // ignore: deprecated_member_use_from_same_package
+      expect(screenType.ordinal, DeviceScreenType.mobile.ordinal);
+      expect(screenType, DeviceScreenType.phone);
     });
 
     test('When on device with width between 600 and 950 should return tablet',
@@ -59,7 +61,9 @@ void main() {
         () {
       final breakPoint = ScreenBreakpoints(large: 550, small: 150);
       final screenType = getDeviceType(Size(549, 800), breakPoint);
-      expect(screenType, DeviceScreenType.mobile);
+      // ignore: deprecated_member_use_from_same_package
+      expect(screenType.ordinal, DeviceScreenType.mobile.ordinal);
+      expect(screenType, DeviceScreenType.phone);
     });
   });
 
@@ -130,7 +134,9 @@ void main() {
           .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
       final breakPoint = ScreenBreakpoints(large: 300, small: 200);
       final screenType = getDeviceType(Size(201, 500), breakPoint);
-      expect(screenType, DeviceScreenType.mobile);
+      // ignore: deprecated_member_use_from_same_package
+      expect(screenType.ordinal, DeviceScreenType.mobile.ordinal);
+      expect(screenType, DeviceScreenType.phone);
     });
     test(
         'When global config watch set to 200, should return watch if custom breakpoint watch is 400 and width is 399',

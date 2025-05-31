@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:responsive_builder2/src/sizing_information.dart';
 import 'package:responsive_builder2/src/device_screen_type.dart';
@@ -7,12 +9,12 @@ void main() {
   group('SizingInformation', () {
     test('constructor and property getters', () {
       final info = SizingInformation(
-        deviceScreenType: DeviceScreenType.mobile,
+        deviceScreenType: DeviceScreenType.phone,
         refinedSize: RefinedSize.large,
         screenSize: const Size(400, 800),
         localWidgetSize: const Size(200, 400),
       );
-      expect(info.deviceScreenType, DeviceScreenType.mobile);
+      expect(info.deviceScreenType, DeviceScreenType.phone);
       expect(info.refinedSize, RefinedSize.large);
       expect(info.screenSize, const Size(400, 800));
       expect(info.localWidgetSize, const Size(200, 400));
@@ -24,6 +26,21 @@ void main() {
       expect(info.isExtraLarge, isFalse);
       expect(info.isNormal, isFalse);
       expect(info.isSmall, isFalse);
+    });
+
+    test('isMobile is true when deviceScreenType == DeviceScreenType.mobile', () {
+      final info = SizingInformation(
+        deviceScreenType: DeviceScreenType.mobile,
+        refinedSize: RefinedSize.normal,
+        screenSize: const Size(375, 667),
+        localWidgetSize: const Size(200, 400),
+      );
+      expect(info.deviceScreenType, DeviceScreenType.mobile);
+      expect(info.isMobile, isTrue);
+      expect(info.isPhone, isTrue);
+      expect(info.isTablet, isFalse);
+      expect(info.isDesktop, isFalse);
+      expect(info.isWatch, isFalse);
     });
 
     test('toString returns expected format', () {

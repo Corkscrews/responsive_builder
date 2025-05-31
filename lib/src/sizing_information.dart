@@ -8,23 +8,28 @@ class SizingInformation {
   final Size screenSize;
   final Size localWidgetSize;
 
-  bool get isMobile => deviceScreenType == DeviceScreenType.mobile;
+  bool get isWatch => deviceScreenType == DeviceScreenType.watch;
+
+  @Deprecated('Use isPhone instead')
+  bool get isMobile => isPhone;
+
+  bool get isPhone => deviceScreenType == DeviceScreenType.phone 
+      // ignore: deprecated_member_use_from_same_package
+      || deviceScreenType == DeviceScreenType.mobile;
 
   bool get isTablet => deviceScreenType == DeviceScreenType.tablet;
 
   bool get isDesktop => deviceScreenType == DeviceScreenType.desktop;
 
-  bool get isWatch => deviceScreenType == DeviceScreenType.watch;
-
   // Refined
 
-  bool get isExtraLarge => refinedSize == RefinedSize.extraLarge;
-
-  bool get isLarge => refinedSize == RefinedSize.large;
+  bool get isSmall => refinedSize == RefinedSize.small;
 
   bool get isNormal => refinedSize == RefinedSize.normal;
 
-  bool get isSmall => refinedSize == RefinedSize.small;
+  bool get isLarge => refinedSize == RefinedSize.large;
+
+  bool get isExtraLarge => refinedSize == RefinedSize.extraLarge;
 
   SizingInformation({
     required this.deviceScreenType,

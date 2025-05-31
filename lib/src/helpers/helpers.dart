@@ -36,7 +36,7 @@ DeviceScreenType getDeviceType(Size size,
     return DeviceScreenType.watch;
   }
 
-  return DeviceScreenType.mobile;
+  return DeviceScreenType.phone;
 }
 
 // coverage:ignore-start
@@ -87,7 +87,7 @@ RefinedSize getRefinedSize(
       }
     }
 
-    if (deviceScreenType == DeviceScreenType.mobile) {
+    if (deviceScreenType == DeviceScreenType.phone) {
       if (deviceWidth >= refinedBreakpoint.mobileExtraLarge) {
         return RefinedSize.extraLarge;
       }
@@ -140,7 +140,7 @@ RefinedSize getRefinedSize(
     }
   }
 
-  if (deviceScreenType == DeviceScreenType.mobile) {
+  if (deviceScreenType == DeviceScreenType.phone) {
     if (deviceWidth >=
         ResponsiveSizingConfig.instance.refinedBreakpoints.mobileExtraLarge) {
       return RefinedSize.extraLarge;
@@ -187,7 +187,7 @@ T getValueForScreenType<T>({
     return watch;
   }
 
-  if (deviceScreenType == DeviceScreenType.mobile) {
+  if (deviceScreenType == DeviceScreenType.phone) {
     if (mobile != null) return mobile;
   }
 
@@ -200,10 +200,10 @@ T getValueForScreenType<T>({
 /// Will return one of the values passed in for the refined size
 T getValueForRefinedSize<T>({
   required BuildContext context,
+  T? small,
   required T normal,
   T? large,
   T? extraLarge,
-  T? small,
 }) {
   RefinedSize refinedSize = getRefinedSize(MediaQuery.sizeOf(context));
   // If we're at extra large size

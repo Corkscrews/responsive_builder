@@ -1,6 +1,6 @@
 [![Responsive UI in Flutter Banner](https://github.com/T-Pro/responsive_builder/blob/master/responsive-builder-banner.jpeg)](https://youtu.be/neRnM_SiTfA)
 
-# Responsive Builder 2 💻➡️🖥➡️📱➡️⌚️
+# responsive_builder2
 
 The responsive builder package contains widgets that allows you to create a readable responsive UI. The package is inspired by the [Responsive UI Flutter series](https://www.youtube.com/playlist?list=PLQQBiNtFxeyJbOkeKBe_JG36gm1V2629H) originally created by FilledStacks and forked by T-Pro.
 
@@ -15,12 +15,84 @@ If you follow along with the series you will have a complete understanding of ho
 Add responsive_builder as dependency to your pubspec file.
 
 ```
-responsive_builder2:
+responsive_builder2: ^0.8.3
 ```
 
 ## Usage
 
-This package provides a widget called `ResponsiveBuilder` that provides you with a builder function that returns the current `SizingInformation`. The `SizingInformation` includes the `DeviceScreenType`, `screenSize` and `localWidgetSize`. This can be used for fine grained responsive control from a view level down to per widget responsive level.
+This package provides two main widgets for building responsive UIs: `ResponsiveBuilder` and `ScreenTypeLayout.builder2`.
+
+- `ResponsiveBuilder` gives you a builder function with a `SizingInformation` object, which contains details like the current `DeviceScreenType`, `screenSize`, and `localWidgetSize`. This allows you to make fine-grained responsive decisions at any widget level.
+
+- `ScreenTypeLayout.builder2` is a more advanced option that also provides a `SizingInformation` object to each builder for different device types (mobile, tablet, desktop, watch). This makes it easy to define separate layouts for each device type, while still having access to all sizing information for granular control.
+
+Use these widgets to easily adapt your UI to different screen sizes and device types, from the overall view down to individual widgets.
+
+### ScreenTypeLayout.builder2
+
+If you want even more control and need access to the current sizing information (such as device type, screen size, and refined size) in your builder, you can use the new `ScreenTypeLayout.builder2`. This variant provides a `SizingInformation` object to each builder, allowing you to make more granular responsive decisions.
+
+```dart
+// import the package
+import 'package:responsive_builder2/responsive_builder2.dart';
+
+// Construct and pass in a widget builder per screen type, with sizing info
+ScreenTypeLayout.builder2(
+  mobile: (BuildContext context, SizingInformation sizing) => Container(
+    color: sizing.isPhone ? Colors.blue : Colors.grey,
+    child: Text('Width: \\${sizing.screenSize.width}'),
+  ),
+  tablet: (BuildContext context, SizingInformation sizing) => Container(
+    color: Colors.yellow,
+    child: Text('Tablet, Refined: \\${sizing.refinedSize}'),
+  ),
+  desktop: (BuildContext context, SizingInformation sizing) => Container(
+    color: Colors.red,
+    child: Text('Desktop, Size: \\${sizing.screenSize}'),
+  ),
+  watch: (BuildContext context, SizingInformation sizing) => Container(
+    color: Colors.purple,
+    child: Text('Watch'),
+  ),
+);
+```
+
+## ScreenTypeLayout (Deprecated)
+
+This widget is similar to the Orientation Layout Builder in that it takes in Widgets that are named and displayed for different screen types.
+
+```dart
+// import the package
+import 'package:responsive_builder2/responsive_builder2.dart';
+
+// Construct and pass in a widget per screen type
+ScreenTypeLayout(
+  mobile: Container(color:Colors.blue),
+  tablet: Container(color: Colors.yellow),
+  desktop: Container(color: Colors.red),
+  watch: Container(color: Colors.purple),
+);
+```
+
+If you don't want to build all the widgets at once, you can use the widget builder. A widget for the right type of screen will be created only when needed.
+
+```dart
+// Construct and pass in a widget builder per screen type
+ScreenTypeLayout.builder(
+  mobile: (BuildContext context) => Container(color:Colors.blue),
+  tablet: (BuildContext context) => Container(color:Colors.yellow),
+  desktop: (BuildContext context) => Container(color:Colors.red),
+  watch: (BuildContext context) => Container(color:Colors.purple),
+);
+```
+
+The `SizingInformation` parameter provides:
+- `deviceScreenType`: The current device type (mobile, tablet, desktop, watch)
+- `refinedSize`: A more granular size classification (small, normal, large, extraLarge)
+- `screenSize`: The overall screen size
+- `localWidgetSize`: The size of the widget being built
+
+This allows you to build highly dynamic and responsive UIs based on detailed device and layout information.
 
 ### Responsive Builder
 
@@ -79,40 +151,11 @@ Sometimes you want your app to stay in a certain orientation. use `mode` propert
 ```dart
 OrientationLayoutBuilder(
   /// default mode is 'auto'
-  mode: info.isMobile
+  mode: info.isPhone
     ? OrientationLayoutBuilderMode.portrait
     : OrientationLayoutBuilderMode.auto,
   ...
 ),
-```
-
-## Screen Type Layout
-
-This widget is similar to the Orientation Layout Builder in that it takes in Widgets that are named and displayed for different screen types.
-
-```dart
-// import the package
-import 'package:responsive_builder2/responsive_builder2.dart';
-
-// Construct and pass in a widget per screen type
-ScreenTypeLayout(
-  mobile: Container(color:Colors.blue),
-  tablet: Container(color: Colors.yellow),
-  desktop: Container(color: Colors.red),
-  watch: Container(color: Colors.purple),
-);
-```
-
-If you don't want to build all the widgets at once, you can use the widget builder. A widget for the right type of screen will be created only when needed.
-
-```dart
-// Construct and pass in a widget builder per screen type
-ScreenTypeLayout.builder(
-  mobile: (BuildContext context) => Container(color:Colors.blue),
-  tablet: (BuildContext context) => Container(color:Colors.yellow),
-  desktop: (BuildContext context) => Container(color:Colors.red),
-  watch: (BuildContext context) => Container(color:Colors.purple),
-);
 ```
 
 ## Custom Screen Breakpoints

@@ -1,3 +1,9 @@
+## 0.8.3
+
+ - Add `ScreenTypeLayout.builder2` that includes `SizingInformation`.
+ - Adds comparison operators to DeviceScreenType and RefinedSize, for convenience. (https://github.com/FilledStacks/responsive_builder/pull/55)
+ - Code coverage reached 100%.
+
 ## 0.8.2
 
  - Add `WASM` support (https://github.com/FilledStacks/responsive_builder/pull/65)

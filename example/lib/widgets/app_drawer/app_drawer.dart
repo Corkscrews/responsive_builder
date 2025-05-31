@@ -10,9 +10,9 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenTypeLayout.builder(
-      mobile: (_) => AppDrawerMobile(),
-      tablet: (_) => OrientationLayoutBuilder(
+    return ScreenTypeLayout.builder2(
+      phone: (_, __) => AppDrawerMobile(),
+      tablet: (_, __) => OrientationLayoutBuilder(
         portrait: (context) => AppDrawerTabletPortrait(),
         landscape: (context) => AppDrawerTabletLandscape(),
       ),
