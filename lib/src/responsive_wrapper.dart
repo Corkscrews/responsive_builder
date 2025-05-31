@@ -39,6 +39,7 @@ extension ResponsiveAppExtensions on num {
   double get sw => screenWidth;
 }
 
+// TODO: Replace ResponsiveAppUtil with ValueNotifier
 class ResponsiveAppUtil {
   static late double height;
   static late double width;

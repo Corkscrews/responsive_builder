@@ -7,7 +7,7 @@ class HomeViewTablet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final orientation = MediaQuery.of(context).orientation;
+    final orientation = MediaQuery.orientationOf(context);
     final orientationText =
         orientation == Orientation.portrait ? "portrait" : "landscape";
     final children = [

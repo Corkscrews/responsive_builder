@@ -1,6 +1,8 @@
 ## 0.8.2
 
- - Add WASM support (https://github.com/FilledStacks/responsive_builder/pull/65)
+ - Add `WASM` support (https://github.com/FilledStacks/responsive_builder/pull/65)
+ - Reduced unnecessary rebuilds by using `MediaQuery` as `InheritedModel` (https://github.com/FilledStacks/responsive_builder/pull/54)
+ - Fixing code sample (https://github.com/FilledStacks/responsive_builder/pull/33)
 
 ## 0.8.1
 

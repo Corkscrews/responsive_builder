@@ -96,7 +96,7 @@ import 'package:responsive_builder2/responsive_builder2.dart';
 
 // Construct and pass in a widget per screen type
 ScreenTypeLayout(
-  mobile: Container(color:Colors.blue)
+  mobile: Container(color:Colors.blue),
   tablet: Container(color: Colors.yellow),
   desktop: Container(color: Colors.red),
   watch: Container(color: Colors.purple),
@@ -130,7 +130,7 @@ ScreenTypeLayout(
     desktop: 950,
     watch: 300
   ),
-  mobile: Container(color:Colors.blue)
+  mobile: Container(color:Colors.blue),
   tablet: Container(color: Colors.yellow),
   desktop: Container(color: Colors.red),
   watch: Container(color: Colors.purple),
@@ -168,7 +168,7 @@ Container(
 What if you ONLY want to update the padding based on the device screen size. You could do.
 
 ```dart
-var deviceType = getDeviceType(MediaQuery.of(context).size);
+var deviceType = getDeviceType(MediaQuery.sizeOf(context));
 var paddingValue = 0;
 switch(deviceType) {
   case DeviceScreenType.desktop:

@@ -170,7 +170,7 @@ T getValueForScreenType<T>({
   T? watch,
 }) {
   DeviceScreenType deviceScreenType =
-      getDeviceType(MediaQuery.of(context).size, null, isWebOrDesktop);
+      getDeviceType(MediaQuery.sizeOf(context), null, isWebOrDesktop);
   // If we're at desktop size
   if (deviceScreenType == DeviceScreenType.desktop) {
     // If we have supplied the desktop layout then display that
@@ -205,7 +205,7 @@ T getValueForRefinedSize<T>({
   T? extraLarge,
   T? small,
 }) {
-  RefinedSize refinedSize = getRefinedSize(MediaQuery.of(context).size);
+  RefinedSize refinedSize = getRefinedSize(MediaQuery.sizeOf(context));
   // If we're at extra large size
   if (refinedSize == RefinedSize.extraLarge) {
     // If we have supplied the extra large layout then display that
