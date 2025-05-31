@@ -52,14 +52,3 @@ flutter:
   #
   # For details regarding fonts in packages, see
   # https://flutter.dev/custom-fonts/#from-packages
-
-exclude:
-  - exemple/
-  - coverage/
-  - .github/
-  - .vscode/
-  - .idea/
-  - .dart_tool/
-  - responsive-builder-banner.jpeg
-  - responsive_example.gif
-  - README.md
