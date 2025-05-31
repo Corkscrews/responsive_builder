@@ -1,6 +1,6 @@
-[![Responsive UI in Flutter Banner](https://github.com/T-Pro/responsive_builder/blob/master/responsive-builder-banner.jpeg)](https://youtu.be/neRnM_SiTfA)
+[![Responsive UI in Flutter Banner](https://github.com/T-Pro/responsive_builder2/blob/master/responsive-builder-banner.jpeg)](https://youtu.be/neRnM_SiTfA)
 
-# Responsive Builder 💻➡️🖥➡️📱➡️⌚️
+# Responsive Builder 2 💻➡️🖥➡️📱➡️⌚️
 
 The responsive builder package contains widgets that allows you to create a readable responsive UI. The package is inspired by the [Responsive UI Flutter series](https://www.youtube.com/playlist?list=PLQQBiNtFxeyJbOkeKBe_JG36gm1V2629H) originally created by FilledStacks and forked by T-Pro.
 
@@ -15,7 +15,7 @@ If you follow along with the series you will have a complete understanding of ho
 Add responsive_builder as dependency to your pubspec file.
 
 ```
-responsive_builder:
+responsive_builder2:
 ```
 
 ## Usage
@@ -28,7 +28,7 @@ The `ResponsiveBuilder` is used as any other builder widget.
 
 ```dart
 // import the package
-import 'package:responsive_builder/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder.dart';
 
 // Use the widget
 ResponsiveBuilder(
@@ -63,7 +63,7 @@ The usage is easy. Provide a builder function that returns a UI for each of the 
 
 ```dart
 // import the package
-import 'package:responsive_builder/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder.dart';
 
 // Return a widget function per orientation
 OrientationLayoutBuilder(
@@ -92,7 +92,7 @@ This widget is similar to the Orientation Layout Builder in that it takes in Wid
 
 ```dart
 // import the package
-import 'package:responsive_builder/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder.dart';
 
 // Construct and pass in a widget per screen type
 ScreenTypeLayout(
@@ -121,7 +121,7 @@ If you wish to define your own custom break points you can do so by supplying ei
 
 ```dart
 // import the package
-import 'package:responsive_builder/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder.dart';
 
 //ScreenTypeLayout with custom breakpoints supplied
 ScreenTypeLayout(
@@ -232,7 +232,7 @@ This is required to use the following functionality.
 To use the responsive sizing all you need to do is the following. 
 
 ```dart
-import 'package:responsive_builder/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder.dart';
 
 SizedBox(height: 30.screenHeight); // Or sh for shorthand
 Text('respond to width', style: TextStyle(fontSize: 10.sw));
@@ -243,7 +243,7 @@ Use the number you want as the percentage and call the `screenHeight` or `screen
 ## Contribution
 
 1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-feature`
+2. Create your feature branch: `git checkout -b feature/newFeature`
 3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
+4. Push to the branch: `git push origin feature/newFeature`
 5. Submit a pull request.

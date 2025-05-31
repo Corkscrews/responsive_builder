@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:responsive_builder/src/scroll/scroll_transform_item.dart';
-import 'package:responsive_builder/src/scroll/scroll_transform_view.dart';
+import 'package:responsive_builder2/src/scroll/scroll_transform_item.dart';
+import 'package:responsive_builder2/src/scroll/scroll_transform_view.dart';
 
 class DummyScrollTransformItem extends ScrollTransformItem {
   DummyScrollTransformItem({

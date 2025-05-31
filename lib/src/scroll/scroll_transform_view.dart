@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_builder/src/scroll/scroll_transform_item.dart';
+import 'package:responsive_builder2/src/scroll/scroll_transform_item.dart';
 
 class ScrollTransformView extends StatefulWidget {
   final List<ScrollTransformItem> children;

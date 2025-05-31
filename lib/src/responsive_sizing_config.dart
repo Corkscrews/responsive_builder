@@ -1,4 +1,4 @@
-import 'package:responsive_builder/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder.dart';
 
 /// Keeps the configuration that will determines the breakpoints for different device sizes
 class ResponsiveSizingConfig {

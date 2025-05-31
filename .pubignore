@@ -1,6 +1,5 @@
 build/
 example/
-test/
 coverage/
 .github/
 .vscode/

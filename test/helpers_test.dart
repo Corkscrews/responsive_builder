@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:responsive_builder/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder.dart';
 
 void main() {
   group('getDeviceType-Defaults', () {

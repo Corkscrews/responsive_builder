@@ -1,4 +1,4 @@
-library responsive_builder;
+library responsive_builder2;
 
 export 'src/device_screen_type.dart';
 export 'src/helpers/helpers.dart';
