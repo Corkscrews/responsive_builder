@@ -28,7 +28,7 @@ The `ResponsiveBuilder` is used as any other builder widget.
 
 ```dart
 // import the package
-import 'package:responsive_builder2/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder2.dart';
 
 // Use the widget
 ResponsiveBuilder(
@@ -63,7 +63,7 @@ The usage is easy. Provide a builder function that returns a UI for each of the 
 
 ```dart
 // import the package
-import 'package:responsive_builder2/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder2.dart';
 
 // Return a widget function per orientation
 OrientationLayoutBuilder(
@@ -92,7 +92,7 @@ This widget is similar to the Orientation Layout Builder in that it takes in Wid
 
 ```dart
 // import the package
-import 'package:responsive_builder2/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder2.dart';
 
 // Construct and pass in a widget per screen type
 ScreenTypeLayout(
@@ -121,7 +121,7 @@ If you wish to define your own custom break points you can do so by supplying ei
 
 ```dart
 // import the package
-import 'package:responsive_builder2/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder2.dart';
 
 //ScreenTypeLayout with custom breakpoints supplied
 ScreenTypeLayout(
@@ -232,7 +232,7 @@ This is required to use the following functionality.
 To use the responsive sizing all you need to do is the following. 
 
 ```dart
-import 'package:responsive_builder2/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder2.dart';
 
 SizedBox(height: 30.screenHeight); // Or sh for shorthand
 Text('respond to width', style: TextStyle(fontSize: 10.sw));
