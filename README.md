@@ -38,9 +38,9 @@ import 'package:responsive_builder2/responsive_builder2.dart';
 
 // Construct and pass in a widget builder per screen type, with sizing info
 ScreenTypeLayout.builder2(
-  mobile: (BuildContext context, SizingInformation sizing) => Container(
+  phone: (BuildContext context, SizingInformation sizing) => Container(
     color: sizing.isPhone ? Colors.blue : Colors.grey,
-    child: Text('Width: \\${sizing.screenSize.width}'),
+    child: Text('Phone, Width: \\${sizing.screenSize.width}'),
   ),
   tablet: (BuildContext context, SizingInformation sizing) => Container(
     color: Colors.yellow,
