@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_builder2/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder2.dart';
 // Replace this import with the actual path to your widget
 
 void main() {

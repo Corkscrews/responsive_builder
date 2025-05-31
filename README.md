@@ -1,4 +1,4 @@
-[![Responsive UI in Flutter Banner](https://github.com/T-Pro/responsive_builder2/blob/master/responsive-builder-banner.jpeg)](https://youtu.be/neRnM_SiTfA)
+[![Responsive UI in Flutter Banner](https://github.com/T-Pro/responsive_builder/blob/master/responsive-builder-banner.jpeg)](https://youtu.be/neRnM_SiTfA)
 
 # Responsive Builder 2 💻➡️🖥➡️📱➡️⌚️
 
