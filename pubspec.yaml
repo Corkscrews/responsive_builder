@@ -1,7 +1,7 @@
 name: responsive_builder2
 description: A set of widgets that can be used to define a readable responsive UI for widgets.
 version: 0.8.3
-homepage: https://github.com/T-Pro/responsive_builder
+homepage: https://github.com/Corkscrews/responsive_builder
 
 funding:
   - https://ko-fi.com/filledstacks
