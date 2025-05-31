@@ -8,15 +8,21 @@ class AppDrawerTabletPortrait extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 130,
+      padding: EdgeInsets.only(bottom: 16.0),
       decoration: BoxDecoration(color: Colors.white, boxShadow: [
         BoxShadow(
           blurRadius: 16,
           color: Colors.black12,
         )
       ]),
-      child: Row(
-        children: AppDrawer.getDrawerOptions(),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: AppDrawer.getDrawerOptions(),
+          ),
+        ),
       ),
     );
   }
@@ -35,8 +41,17 @@ class AppDrawerTabletLandscape extends StatelessWidget {
           color: Colors.black12,
         )
       ]),
-      child: Column(
-        children: AppDrawer.getDrawerOptions(),
+      child: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                children: AppDrawer.getDrawerOptions(),
+              )
+            ),
+          ],
+        ),
       ),
     );
   }

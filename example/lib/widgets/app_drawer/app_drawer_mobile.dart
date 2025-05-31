@@ -9,15 +9,27 @@ class AppDrawerMobile extends StatelessWidget {
   Widget build(BuildContext context) {
     final orientation = MediaQuery.of(context).orientation;
     return Container(
-      width: orientation == Orientation.portrait ? 250 : 100,
-      decoration: BoxDecoration(color: Colors.white, boxShadow: [
-        BoxShadow(
-          blurRadius: 16,
-          color: Colors.black12,
-        )
-      ]),
-      child: Column(
-        children: AppDrawer.getDrawerOptions(),
+      width: orientation == Orientation.portrait ? 230 : 140,
+      decoration: BoxDecoration(
+        color: Colors.white, 
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 16,
+            color: Colors.black12,
+          )
+        ]
+      ),
+      child: SafeArea(
+        right: orientation == Orientation.portrait,
+        child: Column(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                children: AppDrawer.getDrawerOptions(),
+              )
+            ),
+          ],
+        ),
       ),
     );
   }

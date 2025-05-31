@@ -12,20 +12,22 @@ class DrawerOptionMobilePortrait extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(left: 25),
-      height: 80,
+      padding: const EdgeInsets.all(16.0),
       child: Row(
-        children: <Widget>[
-          Icon(
-            iconData,
-            size: 25,
-          ),
-          SizedBox(
-            width: 25,
-          ),
-          Text(
-            title!,
-            style: TextStyle(fontSize: 21),
+      children: <Widget>[
+        SizedBox(
+          width: 16,
+        ),
+        Icon(
+          iconData,
+          size: 25,
+        ),
+        SizedBox(
+          width: 16,
+        ),
+        Text(
+          title!,
+          style: TextStyle(fontSize: 21),
           )
         ],
       ),
@@ -34,16 +36,33 @@ class DrawerOptionMobilePortrait extends StatelessWidget {
 }
 
 class DrawerOptionMobileLandscape extends StatelessWidget {
+  final String? title;
   final IconData? iconData;
-  const DrawerOptionMobileLandscape({Key? key, this.iconData})
-      : super(key: key);
+  const DrawerOptionMobileLandscape({
+    Key? key,
+    this.title,
+    this.iconData,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 70,
-      alignment: Alignment.center,
-      child: Icon(iconData),
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Column(
+        children: <Widget>[
+          Icon(
+            iconData,
+            size: 25,
+          ),
+          SizedBox(
+            height: 4,
+          ),
+          Text(
+            title ?? '',
+            style: TextStyle(fontSize: 14),
+          ),
+        ],
+      ),
     );
   }
 }

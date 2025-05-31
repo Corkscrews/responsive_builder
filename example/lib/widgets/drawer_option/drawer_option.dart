@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_builder/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder.dart';
 
 import 'drawer_option_mobile.dart';
 import 'drawer_option_tablet.dart';
@@ -18,6 +18,7 @@ class DrawerOption extends StatelessWidget {
     return ScreenTypeLayout.builder(
       mobile: (_) => OrientationLayoutBuilder(
         landscape: (context) => DrawerOptionMobileLandscape(
+          title: title,
           iconData: iconData,
         ),
         portrait: (context) => DrawerOptionMobilePortrait(

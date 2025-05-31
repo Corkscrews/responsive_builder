@@ -2,7 +2,7 @@ import 'package:example/views/home/home_view_desktop.dart';
 import 'package:example/views/home/home_view_mobile.dart';
 import 'package:example/views/home/home_view_tablet.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_builder/responsive_builder.dart';
+import 'package:responsive_builder2/responsive_builder.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -13,8 +13,8 @@ class HomeView extends StatelessWidget {
       breakpoints: ScreenBreakpoints(large: 650, small: 250),
       desktop: (_) => HomeViewDesktop(),
       mobile: (_) => OrientationLayoutBuilder(
-        portrait: (context) => HomeMobilePortrait(),
-        landscape: (context) => HomeMobileLandscape(),
+        portrait: (context) => HomeMobileView(isPortrait: true),
+        landscape: (context) => HomeMobileView(isPortrait: false),
       ),
       tablet: (_) => HomeViewTablet(),
     );
