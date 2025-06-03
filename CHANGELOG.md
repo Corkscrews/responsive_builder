@@ -1,3 +1,7 @@
+## 0.8.5
+
+ - Similar to 0.8.5 with changes to the `README.md`.
+
 ## 0.8.4
 
  - Make `WidgetBuilder` and `WidgetBuilder2` values private.
