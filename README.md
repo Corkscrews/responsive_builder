@@ -1,12 +1,10 @@
-[![Responsive UI in Flutter Banner](https://github.com/Corkscrews/responsive_builder/blob/master/responsive-builder-banner.jpeg)](https://youtu.be/neRnM_SiTfA)
+[Responsive UI in Flutter Banner](https://github.com/Corkscrews/responsive_builder/blob/master/responsive_builder2.jpg)
 
 # responsive_builder2
 
 The responsive builder package contains widgets that allows you to create a readable responsive UI. The package is inspired by the [Responsive UI Flutter series](https://www.youtube.com/playlist?list=PLQQBiNtFxeyJbOkeKBe_JG36gm1V2629H) originally created by FilledStacks and forked by Corkscrews.
 
 It aims to provide you with widgets that make it easy to build different UI's along two different Axis. Orientation x ScreenType. This means you can have a separate layout for Mobile - Landscape, Mobile - Portrait, Tablet - Landscape and Tablet-Portrait.
-
-If you follow along with the series you will have a complete understanding of how it's built and how to use it. [Part 2](https://youtu.be/udsysUj-X4w) goes over how we build the example included in this project.
 
 ![Responsive Layout Preview](./responsive_example.gif)
 
