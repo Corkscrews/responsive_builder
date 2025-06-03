@@ -1,4 +1,4 @@
-[Responsive UI in Flutter Banner](https://github.com/Corkscrews/responsive_builder/blob/master/responsive_builder2.jpg)
+![Responsive UI in Flutter Banner](https://github.com/Corkscrews/responsive_builder/blob/master/responsive_builder2.jpg)
 
 # responsive_builder2
 
@@ -6,7 +6,7 @@ The responsive builder package contains widgets that allows you to create a read
 
 It aims to provide you with widgets that make it easy to build different UI's along two different Axis. Orientation x ScreenType. This means you can have a separate layout for Mobile - Landscape, Mobile - Portrait, Tablet - Landscape and Tablet-Portrait.
 
-![Responsive Layout Preview](./responsive_example.gif)
+![Responsive Layout Preview](https://github.com/Corkscrews/responsive_builder/blob/master/responsive_example.gif)
 
 ## Installation
 
