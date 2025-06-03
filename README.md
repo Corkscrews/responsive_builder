@@ -13,7 +13,7 @@ It aims to provide you with widgets that make it easy to build different UI's al
 Add responsive_builder as dependency to your pubspec file.
 
 ```
-responsive_builder2: ^0.8.4
+responsive_builder2: ^0.8.5
 ```
 
 ## Usage
