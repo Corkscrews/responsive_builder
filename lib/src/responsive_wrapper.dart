@@ -1,15 +1,32 @@
 import 'package:flutter/widgets.dart';
 
-/// Wrap your app with this widget if you want to use the responsive sizing extension
+/// A widget that wraps your app to enable responsive sizing functionality.
+///
+/// This widget provides the foundation for responsive design by tracking
+/// screen dimensions and orientation. It should be placed at the root of your
+/// widget tree to enable the responsive sizing extensions throughout your app.
+///
+/// Example:
+/// ```dart
+/// ResponsiveApp(
+///   builder: (context) => MyApp(),
+///   preferDesktop: false,
+/// )
+/// ```
 class ResponsiveApp extends StatelessWidget {
+  /// The builder function that creates the main widget tree
   final Widget Function(BuildContext) builder;
 
-  /// Tells ResponsiveApp if we prefer desktop or mobile when a layout is not supplied
+  /// Controls the default layout preference when a specific layout is not
+  /// provided. When true, desktop layouts will be preferred over mobile
+  /// layouts.
   final bool preferDesktop;
 
-  const ResponsiveApp(
-      {Key? key, required this.builder, this.preferDesktop = false})
-      : super(key: key);
+  const ResponsiveApp({
+    Key? key,
+    required this.builder,
+    this.preferDesktop = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,29 +40,55 @@ class ResponsiveApp extends StatelessWidget {
   }
 }
 
+/// Extension methods for numeric values to calculate responsive dimensions.
+///
+/// These extensions provide convenient ways to calculate dimensions as
+/// percentages of the screen size. They are useful for creating layouts that
+/// scale proportionally with the screen size.
 extension ResponsiveAppExtensions on num {
-  /// Returns the pecentage of screen height based on the extended number
-  /// Example: 20.screenHeight = (20 / 100) * currentScreenHeight
+  /// Calculates a percentage of the screen height.
+  ///
+  /// Returns the value as a percentage of the current screen height.
+  /// For example, `20.screenHeight` returns 20% of the screen height.
   double get screenHeight => (this / 100) * ResponsiveAppUtil.height;
 
-  /// Returns the pecentage of screen width based on the extended number
-  /// Example: 20.screenHeight = (20 / 100) * currentScreenHeight
+  /// Calculates a percentage of the screen width.
+  ///
+  /// Returns the value as a percentage of the current screen width.
+  /// For example, `20.screenWidth` returns 20% of the screen width.
   double get screenWidth => (this / 100) * ResponsiveAppUtil.width;
 
-  /// Shorthand for [screenHeight]
+  /// Shorthand alias for [screenHeight]
   double get sh => screenHeight;
 
-  /// Shorthand for [screenWidth]
+  /// Shorthand alias for [screenWidth]
   double get sw => screenWidth;
 }
 
-// TODO: Replace ResponsiveAppUtil with ValueNotifier
+/// Utility class for managing responsive app dimensions and preferences.
+///
+/// This class maintains the current screen dimensions and layout preferences
+/// for use throughout the app. It is used internally by the responsive
+/// extensions and should not be accessed directly in most cases.
+///
+/// TODO: Replace with ValueNotifier for better state management
 class ResponsiveAppUtil {
+  /// The current screen height in logical pixels
   static late double height;
+
+  /// The current screen width in logical pixels
   static late double width;
+
+  /// Whether to prefer desktop layouts over mobile layouts
   static bool preferDesktop = false;
 
-  /// Saves the screenSzie for access through the extensions later
+  /// Updates the stored screen dimensions based on the current constraints
+  /// and orientation.
+  ///
+  /// This method should be called whenever the screen size or orientation
+  /// changes.
+  /// It handles the swapping of width and height values when in landscape
+  /// orientation.
   static void setScreenSize(
     BoxConstraints constraints,
     Orientation orientation,

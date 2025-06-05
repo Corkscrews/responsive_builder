@@ -1,17 +1,30 @@
-import 'dart:io';
+// Removed import 'dart:io' for WASM compatibility.
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:responsive_builder2/responsive_builder2.dart';
+import 'package:universal_platform/universal_platform.dart';
 
-// Author: https://github.com/fastogt/responsive_builder/tree/master
-import 'device_width.dart' if (dart.library.js_interop) 'device_width_web.dart'
-    as width;
+import 'device_width.dart' as width;
 
-final _isWebOrDesktop =
-    kIsWeb || Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+/// Determines if the current platform is web or desktop (WASM compatible)
+final _isWebOrDesktop = kIsWeb ||
+    UniversalPlatform.isWindows ||
+    UniversalPlatform.isLinux ||
+    UniversalPlatform.isMacOS;
 
 /// Returns the [DeviceScreenType] that the application is currently running on
+///
+/// This function determines the device type based on the screen size and
+/// optional breakpoints.
+///
+/// Parameters:
+/// * [size] - The current screen size
+/// * [breakpoint] - Optional custom breakpoints to override defaults
+/// * [isWebOrDesktop] - Optional flag to force web/desktop behavior
+///
+/// Returns [DeviceScreenType] representing the current device type (desktop,
+/// tablet, phone, or watch)
 DeviceScreenType getDeviceType(Size size,
     [ScreenBreakpoints? breakpoint = null, bool? isWebOrDesktop]) {
   isWebOrDesktop = isWebOrDesktop ??= _isWebOrDesktop;
@@ -39,14 +52,28 @@ DeviceScreenType getDeviceType(Size size,
   return DeviceScreenType.phone;
 }
 
-// coverage:ignore-start
+/// Helper function to determine if a large screen should be treated as desktop
+/// or tablet
+///
+/// Returns [DeviceScreenType.desktop] if [isWebOrDesktop] is true, otherwise
+/// returns [DeviceScreenType.tablet]
 DeviceScreenType _desktopOrTablet(bool? isWebOrDesktop) =>
     (isWebOrDesktop ?? _isWebOrDesktop)
         ? DeviceScreenType.desktop
         : DeviceScreenType.tablet;
-// coverage:ignore-end
 
-/// Returns the [RefindedSize] for each device that the application is currently running on
+/// Returns the [RefinedSize] for the current device based on screen dimensions
+///
+/// This function provides more granular size categories (extraLarge, large,
+/// normal, small)
+/// within each device type (desktop, tablet, phone, watch).
+///
+/// Parameters:
+/// * [size] - The current screen size
+/// * [refinedBreakpoint] - Optional custom breakpoints for refined sizes
+/// * [isWebOrDesktop] - Optional flag to force web/desktop behavior
+///
+/// Returns [RefinedSize] representing the current refined size category
 RefinedSize getRefinedSize(
   Size size, {
   RefinedBreakpoints? refinedBreakpoint,
@@ -160,7 +187,22 @@ RefinedSize getRefinedSize(
   return RefinedSize.small;
 }
 
-/// Will return one of the values passed in for the device it's running on
+/// Returns a value based on the current device screen type
+///
+/// This function selects the appropriate value from the provided options based
+/// on the current device type (desktop, tablet, phone, watch). It follows a
+/// fallback pattern where if a value for the current device type isn't provided,
+/// it will use the next best option.
+///
+/// Parameters:
+/// * [context] - The build context
+/// * [isWebOrDesktop] - Optional flag to force web/desktop behavior
+/// * [mobile] - Required value for mobile devices
+/// * [tablet] - Optional value for tablet devices
+/// * [desktop] - Optional value for desktop devices
+/// * [watch] - Optional value for watch devices
+///
+/// Returns the appropriate value for the current device type
 T getValueForScreenType<T>({
   required BuildContext context,
   bool? isWebOrDesktop,
@@ -175,7 +217,8 @@ T getValueForScreenType<T>({
   if (deviceScreenType == DeviceScreenType.desktop) {
     // If we have supplied the desktop layout then display that
     if (desktop != null) return desktop;
-    // If no desktop layout is supplied we want to check if we have the size below it and display that
+    // If no desktop layout is supplied we want to check if we have the size
+    // below it and display that
     if (tablet != null) return tablet;
   }
 
@@ -191,12 +234,28 @@ T getValueForScreenType<T>({
     if (mobile != null) return mobile;
   }
 
-  // If none of the layouts above are supplied we use the prefered layout based on the flag
+  // If none of the layouts above are supplied we use the prefered layout based
+  // on the flag
   final buildDesktopLayout = ResponsiveAppUtil.preferDesktop && desktop != null;
 
   return buildDesktopLayout ? desktop : mobile;
 }
 
+/// Returns a value based on the current refined screen size
+///
+/// This function selects the appropriate value from the provided options based
+/// on the current refined size (extraLarge, large, normal, small). It follows a
+/// fallback pattern where if a value for the current size isn't provided, it
+/// will use the next best option.
+///
+/// Parameters:
+/// * [context] - The build context
+/// * [small] - Optional value for small screens
+/// * [normal] - Required value for normal screens
+/// * [large] - Optional value for large screens
+/// * [extraLarge] - Optional value for extra large screens
+///
+/// Returns the appropriate value for the current refined size
 /// Will return one of the values passed in for the refined size
 T getValueForRefinedSize<T>({
   required BuildContext context,
@@ -210,14 +269,16 @@ T getValueForRefinedSize<T>({
   if (refinedSize == RefinedSize.extraLarge) {
     // If we have supplied the extra large layout then display that
     if (extraLarge != null) return extraLarge;
-    // If no extra large layout is supplied we want to check if we have the size below it and display that
+    // If no extra large layout is supplied we want to check if we have the
+    // size below it and display that
     if (large != null) return large;
   }
 
   if (refinedSize == RefinedSize.large) {
     // If we have supplied the large layout then display that
     if (large != null) return large;
-    // If no large layout is supplied we want to check if we have the size below it and display that
+    // If no large layout is supplied we want to check if we have the size
+    // below it and display that
     if (normal != null) return normal;
   }
 
@@ -232,7 +293,8 @@ T getValueForRefinedSize<T>({
     if (small != null) return small;
   }
 
-  // If none of the layouts above are supplied or we're on the normal size layout then we show the normal layout
+  // If none of the layouts above are supplied or we're on the normal size
+  // layout then we show the normal layout
   return normal;
 }
 

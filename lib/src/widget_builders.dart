@@ -1,12 +1,23 @@
 import 'package:flutter/widgets.dart';
 import '../responsive_builder2.dart';
 
+/// Signature for a function that builds a widget given a [BuildContext]].
+///
+/// Used by [ScreenTypeLayout.builder] to provide both the build context for
+/// responsive widget construction.
 typedef WidgetBuilder = Widget Function(BuildContext);
+
+/// Signature for a function that builds a widget given a [BuildContext]
+/// and [SizingInformation].
+///
+/// Used by [ScreenTypeLayout.builder2] to provide both the build context and
+/// detailed sizing information for responsive widget construction.
 typedef WidgetBuilder2 = Widget Function(BuildContext, SizingInformation);
 
 /// A widget with a builder that provides you with the sizingInformation
 ///
-/// This widget is used by the ScreenTypeLayout to provide different widget builders
+/// This widget is used by the ScreenTypeLayout to provide different widget
+/// builders
 class ResponsiveBuilder extends StatelessWidget {
   final Widget Function(
     BuildContext context,
@@ -122,8 +133,8 @@ class ScreenTypeLayout extends StatelessWidget {
     required Widget mobile,
     Widget? tablet,
     Widget? desktop,
-  })  : this._breakpoints = breakpoints, 
-        this._isWebOrDesktop = isWebOrDesktop, 
+  })  : this._breakpoints = breakpoints,
+        this._isWebOrDesktop = isWebOrDesktop,
         this._watch = _builderOrNull(watch),
         this._watch2 = null,
         this._mobile = _builderOrNull(mobile)!,
@@ -150,12 +161,12 @@ class ScreenTypeLayout extends StatelessWidget {
     Widget Function(BuildContext)? mobile,
     Widget Function(BuildContext)? tablet,
     Widget Function(BuildContext)? desktop,
-  })  : this._breakpoints = breakpoints, 
-        this._isWebOrDesktop = isWebOrDesktop, 
-        this._desktop = desktop, 
-        this._tablet = tablet, 
-        this._mobile = mobile, 
-        this._watch = watch, 
+  })  : this._breakpoints = breakpoints,
+        this._isWebOrDesktop = isWebOrDesktop,
+        this._desktop = desktop,
+        this._tablet = tablet,
+        this._mobile = mobile,
+        this._watch = watch,
         this._watch2 = null,
         this._phone2 = null,
         this._tablet2 = null,
@@ -172,8 +183,8 @@ class ScreenTypeLayout extends StatelessWidget {
     WidgetBuilder2? phone,
     WidgetBuilder2? tablet,
     WidgetBuilder2? desktop,
-  })  : this._breakpoints = breakpoints, 
-        this._isWebOrDesktop = isWebOrDesktop, 
+  })  : this._breakpoints = breakpoints,
+        this._isWebOrDesktop = isWebOrDesktop,
         this._watch = null,
         this._watch2 = watch,
         this._mobile = null,
@@ -214,17 +225,17 @@ class ScreenTypeLayout extends StatelessWidget {
   /// provided), and if none is available for the current device type, it falls
   /// back to a [WidgetBuilder2] (if provided) for more granular control.
   ///
-  /// Throws an assertion error if neither a mobile nor a desktop layout is supplied.
+  /// Throws an assertion error if neither a mobile nor a desktop layout is
+  /// supplied.
   @override
   Widget build(BuildContext context) {
     return ResponsiveBuilder(
       breakpoints: _breakpoints,
       isWebOrDesktop: _isWebOrDesktop,
       builder: (context, sizingInformation) {
-        if (_usingBuilder2()) {
-          return _handleWidgetBuilder2(context, sizingInformation)!;
-        }
-        return _handleWidgetBuilder(context, sizingInformation)!;
+        return _usingBuilder2()
+            ? _handleWidgetBuilder2(context, sizingInformation)!
+            : _handleWidgetBuilder(context, sizingInformation)!;
       },
     );
   }
@@ -239,7 +250,8 @@ class ScreenTypeLayout extends StatelessWidget {
     if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
       // If we have supplied the desktop layout then display that
       if (_desktop != null) return _desktop!(context);
-      // If no desktop layout is supplied we want to check if we have the size below it and display that
+      // If no desktop layout is supplied we want to check if we have the
+      // size below it and display that
       if (_tablet != null) return _tablet!(context);
     }
 
@@ -266,7 +278,8 @@ class ScreenTypeLayout extends StatelessWidget {
     if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
       // If we have supplied the desktop layout then display that
       if (_desktop2 != null) return _desktop2!(context, sizingInformation);
-      // If no desktop layout is supplied we want to check if we have the size below it and display that
+      // If no desktop layout is supplied we want to check if we have the
+      // size below it and display that
       if (_tablet2 != null) return _tablet2!(context, sizingInformation);
     }
 
@@ -283,14 +296,19 @@ class ScreenTypeLayout extends StatelessWidget {
   }
 }
 
-/// Provides a builder function for refined screen sizes to be used with [ScreenTypeLayout]
+/// Provides a builder function for refined screen sizes to be used
+/// with [ScreenTypeLayout]
 ///
 /// Each builder will get built based on the current device width.
 /// [breakpoints] define your own custom device resolutions
-/// [extraLarge] will be built if width is greater than 2160 on Desktops, 1280 on Tablets, and 600 on Mobiles
-/// [large] will be built when width is greater than 1440 on Desktops, 1024 on Tablets, and 414 on Mobiles
-/// [normal] will be built when width is greater than 1080 on Desktops, 768 on Tablets, and 375 on Mobiles
-/// [small] will be built if width is less than 720 on Desktops, 600 on Tablets, and 320 on Mobiles
+/// [extraLarge] will be built if width is greater than 2160 on Desktops, 1280
+/// on Tablets, and 600 on Mobiles
+/// [large] will be built when width is greater than 1440 on Desktops, 1024 on
+///  Tablets, and 414 on Mobiles
+/// [normal] will be built when width is greater than 1080 on Desktops, 768 on
+/// Tablets, and 375 on Mobiles
+/// [small] will be built if width is less than 720 on Desktops, 600 on Tablets,
+/// and 320 on Mobiles
 class RefinedLayoutBuilder extends StatelessWidget {
   final RefinedBreakpoints? refinedBreakpoints;
   final bool? isWebOrDesktop;
@@ -320,14 +338,16 @@ class RefinedLayoutBuilder extends StatelessWidget {
         if (sizingInformation.refinedSize == RefinedSize.extraLarge) {
           // If we have supplied the extra large layout then display that
           if (extraLarge != null) return extraLarge!(context);
-          // If no extra large layout is supplied we want to check if we have the size below it and display that
+          // If no extra large layout is supplied we want to check if we have
+          // the size below it and display that
           if (large != null) return large!(context);
         }
 
         if (sizingInformation.refinedSize == RefinedSize.large) {
           // If we have supplied the large layout then display that
           if (large != null) return large!(context);
-          // If no large layout is supplied we want to check if we have the size below it and display that
+          // If no large layout is supplied we want to check if we have the
+          // size below it and display that
           return normal(context);
         }
 
@@ -336,7 +356,8 @@ class RefinedLayoutBuilder extends StatelessWidget {
           if (small != null) return small!(context);
         }
 
-        // If none of the layouts above are supplied or we're on the small size layout then we show the small layout
+        // If none of the layouts above are supplied or we're on the small size
+        // layout then we show the small layout
         return normal(context);
       },
     );
