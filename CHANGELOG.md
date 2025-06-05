@@ -1,3 +1,8 @@
+## 0.8.6
+
+ - Fix support to `WASM`.
+ - Apply lint fixes and better documentation.
+
 ## 0.8.5
 
  - Similar to 0.8.5 with changes to the `README.md`.
