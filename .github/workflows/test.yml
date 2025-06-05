@@ -1,4 +1,4 @@
-name: Test and Coverage
+name: 🧪 Test and Coverage
 
 on:
   push:
@@ -10,10 +10,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: 🔄 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache Flutter dependencies
+      - name: 💾 Cache Flutter dependencies
         uses: actions/cache@v4
         with:
           path: |
@@ -23,34 +23,34 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-flutter-
 
-      - name: Set up Flutter
+      - name: ⚙️ Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.6'
           channel: 'stable'
 
-      - name: Install dependencies
+      - name: 📥 Install dependencies
         run: flutter pub get
 
-      - name: Run linter
+      - name: 🔍 Run linter
         run: flutter analyze
 
-      - name: Run tests with coverage
+      - name: 🧪 Run tests with coverage
         run: flutter test --coverage
 
-      - name: Install lcov
+      - name: 📦 Install lcov
         run: sudo apt-get update && sudo apt-get install -y lcov
 
-      - name: Generate HTML coverage report
+      - name: 📊 Generate HTML coverage report
         run: genhtml coverage/lcov.info --output-directory coverage/html
 
-      - name: Upload coverage artifact
+      - name: 📤 Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: coverage/lcov.info
 
-      - name: Upload HTML coverage report
+      - name: 📤 Upload HTML coverage report
         uses: actions/upload-artifact@v4
         with:
           name: coverage-html
