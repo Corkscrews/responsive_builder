@@ -1,3 +1,7 @@
+## 0.8.7
+
+ - Similar to 0.8.6 with changes to the `README.md`.
+
 ## 0.8.6
 
  - Fix support to `WASM`.
