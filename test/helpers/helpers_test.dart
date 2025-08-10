@@ -35,7 +35,7 @@ void main() {
     test(
         'given break point with desktop at 1200 and width at 1201 should return desktop',
         () {
-      final breakPoint = ScreenBreakpoints(large: 550, small: 300);
+      final breakPoint = ScreenBreakpoints(small: 300, normal: 550, large: 1200);
       final screenType = getDeviceType(Size(1201, 1400), breakPoint);
       expect(screenType, DeviceScreenType.desktop);
     });
@@ -43,7 +43,7 @@ void main() {
     test(
         'given break point with tablet at 550 and width at 1199 should return tablet',
         () {
-      final breakPoint = ScreenBreakpoints(large: 550, small: 300);
+      final breakPoint = ScreenBreakpoints(small: 300, normal: 550, large: 1200);
       final screenType = getDeviceType(Size(1199, 1400), breakPoint, false);
       expect(screenType, DeviceScreenType.tablet);
     });
@@ -51,7 +51,7 @@ void main() {
     test(
         'given break point with watch at 150 and width at 149 should return watch',
         () {
-      final breakPoint = ScreenBreakpoints(large: 550, small: 150);
+      final breakPoint = ScreenBreakpoints(small: 150, normal: 550, large: 1200);
       final screenType = getDeviceType(Size(149, 340), breakPoint);
       expect(screenType, DeviceScreenType.watch);
     });
@@ -59,7 +59,7 @@ void main() {
     test(
         'given break point with desktop 1200, tablet 550, should return mobile if width is under 550 above 150',
         () {
-      final breakPoint = ScreenBreakpoints(large: 550, small: 150);
+      final breakPoint = ScreenBreakpoints(small: 150, normal: 550, large: 1200);
       final screenType = getDeviceType(Size(549, 800), breakPoint);
       // ignore: deprecated_member_use_from_same_package
       expect(screenType.ordinal, DeviceScreenType.mobile.ordinal);
@@ -72,7 +72,7 @@ void main() {
         'When global config desktop set to 800, should return desktop when width is 801',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 550, small: 200));
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 800));
 
       final screenType = getDeviceType(Size(801, 1000));
       expect(screenType, DeviceScreenType.desktop);
@@ -81,7 +81,7 @@ void main() {
         'When global config tablet set to 550, should return tablet when width is 799',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 550, small: 200));
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 550, large: 1000));
 
       final screenType = getDeviceType(Size(799, 1000), null, false);
       expect(screenType, DeviceScreenType.tablet);
@@ -90,7 +90,7 @@ void main() {
         'When global config tablet set to 550, should return mobile when width is 799',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 550, small: 200));
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 550, large: 1000));
 
       final screenType = getDeviceType(Size(799, 1000), null, false);
       expect(screenType, DeviceScreenType.tablet);
@@ -100,7 +100,7 @@ void main() {
         'When global config watch set to 200, should return watch when width is 199',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 550, small: 200));
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 550, large: 1000));
 
       final screenType = getDeviceType(Size(799, 1000), null, false);
       expect(screenType, DeviceScreenType.tablet);
@@ -113,8 +113,8 @@ void main() {
         'When global config desktop set to 1000, should return desktop when custom breakpoint desktop is 800 and width is 801',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
-      final breakPoint = ScreenBreakpoints(large: 750, small: 200);
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
+      final breakPoint = ScreenBreakpoints(small: 200, normal: 500, large: 750);
       final screenType = getDeviceType(Size(801, 1000), breakPoint);
       expect(screenType, DeviceScreenType.desktop);
     });
@@ -122,8 +122,8 @@ void main() {
         'When global config tablet set to 600, should return tablet when custom breakpoint tablet is 800 and width is 801',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
-      final breakPoint = ScreenBreakpoints(large: 800, small: 200);
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
+      final breakPoint = ScreenBreakpoints(small: 200, normal: 800, large: 1200);
       final screenType = getDeviceType(Size(801, 1000), breakPoint, false);
       expect(screenType, DeviceScreenType.tablet);
     });
@@ -131,8 +131,8 @@ void main() {
         'When global config is set tablet 600, desktop 800, should return mobile if custom breakpoint has range of 200, 300 and width is 201',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
-      final breakPoint = ScreenBreakpoints(large: 300, small: 200);
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
+      final breakPoint = ScreenBreakpoints(small: 200, normal: 250, large: 300);
       final screenType = getDeviceType(Size(201, 500), breakPoint);
       // ignore: deprecated_member_use_from_same_package
       expect(screenType.ordinal, DeviceScreenType.mobile.ordinal);
@@ -142,8 +142,8 @@ void main() {
         'When global config watch set to 200, should return watch if custom breakpoint watch is 400 and width is 399',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
-      final breakPoint = ScreenBreakpoints(large: 800, small: 400);
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
+      final breakPoint = ScreenBreakpoints(small: 400, normal: 700, large: 800);
       final screenType = getDeviceType(Size(399, 1000), breakPoint);
       expect(screenType, DeviceScreenType.watch);
     });
@@ -154,7 +154,7 @@ void main() {
         'When called with mobile size in small range, should return RefinedSize.small',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
       final breakPoint = RefinedBreakpoints(
         mobileSmall: 300,
         mobileNormal: 370,
@@ -173,7 +173,7 @@ void main() {
         'When called with mobile size in normal range, should return RefinedSize.normal',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
       final breakPoint = RefinedBreakpoints(
         mobileSmall: 300,
         mobileNormal: 370,
@@ -192,7 +192,7 @@ void main() {
         'When called with mobile size in large range, should return RefinedSize.large',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
       final breakPoint = RefinedBreakpoints(
         mobileSmall: 300,
         mobileNormal: 370,
@@ -211,7 +211,7 @@ void main() {
         'When called with mobile size in extraLarge range, should return RefinedSize.extraLarge',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
       final breakPoint = RefinedBreakpoints(
         mobileSmall: 300,
         mobileNormal: 370,
@@ -230,7 +230,7 @@ void main() {
         'When called with desktop size in small range, should return RefinedSize.small',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
       final breakPoint = RefinedBreakpoints(
           tabletSmall: 850,
           tabletNormal: 900,
@@ -248,7 +248,7 @@ void main() {
         'When called with desktop size in normal range, should return RefinedSize.normal',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
       final breakPoint = RefinedBreakpoints(
           tabletSmall: 850,
           tabletNormal: 900,
@@ -266,7 +266,7 @@ void main() {
         'When called with desktop size in large range, should return RefinedSize.large',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
       final breakPoint = RefinedBreakpoints(
           tabletSmall: 850,
           tabletNormal: 900,
@@ -284,7 +284,7 @@ void main() {
         'When called with desktop size in extraLarge range, should return RefinedSize.extraLarge',
         () {
       ResponsiveSizingConfig.instance
-          .setCustomBreakpoints(ScreenBreakpoints(large: 600, small: 200));
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
       final breakPoint = RefinedBreakpoints(
           tabletSmall: 850,
           tabletNormal: 900,

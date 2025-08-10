@@ -5,7 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:responsive_builder2/responsive_builder2.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-import 'device_width.dart' as width;
+import 'device_width.dart' if (dart.library.js_interop) 'device_width_web.dart'
+    as width;
 
 /// Determines if the current platform is web or desktop (WASM compatible)
 final _isWebOrDesktop = kIsWeb ||
@@ -30,15 +31,23 @@ DeviceScreenType getDeviceType(Size size,
   isWebOrDesktop = isWebOrDesktop ??= _isWebOrDesktop;
   double deviceWidth = width.deviceWidth(size, isWebOrDesktop);
 
-  // Replaces the defaults with the user defined definitions
+  // Use provided breakpoint with middle (normal) threshold
   if (breakpoint != null) {
-    if (deviceWidth > breakpoint.large) {
+    // Desktop or Tablet for very large widths
+    if (deviceWidth >= breakpoint.large) {
       return _desktopOrTablet(isWebOrDesktop);
     }
 
+    // Watch for very small widths
     if (deviceWidth < breakpoint.small) {
       return DeviceScreenType.watch;
     }
+
+    // Classify phone/tablet using normal
+    if (deviceWidth < breakpoint.normal) {
+      return DeviceScreenType.phone;
+    }
+    return DeviceScreenType.tablet;
   }
 
   if (deviceWidth >= ResponsiveSizingConfig.instance.breakpoints.large) {
@@ -49,7 +58,12 @@ DeviceScreenType getDeviceType(Size size,
     return DeviceScreenType.watch;
   }
 
-  return DeviceScreenType.phone;
+  // Use global normal threshold
+  final globalNormal = ResponsiveSizingConfig.instance.breakpoints.normal;
+  if (deviceWidth < globalNormal) {
+    return DeviceScreenType.phone;
+  }
+  return DeviceScreenType.tablet;
 }
 
 /// Helper function to determine if a large screen should be treated as desktop
@@ -98,6 +112,9 @@ RefinedSize getRefinedSize(
       if (deviceWidth >= refinedBreakpoint.desktopNormal) {
         return RefinedSize.normal;
       }
+
+      // Below desktopNormal threshold
+      return RefinedSize.small;
     }
 
     if (deviceScreenType == DeviceScreenType.tablet) {
@@ -112,6 +129,9 @@ RefinedSize getRefinedSize(
       if (deviceWidth >= refinedBreakpoint.tabletNormal) {
         return RefinedSize.normal;
       }
+
+      // Below tabletNormal threshold
+      return RefinedSize.small;
     }
 
     if (deviceScreenType == DeviceScreenType.phone) {
@@ -126,6 +146,9 @@ RefinedSize getRefinedSize(
       if (deviceWidth >= refinedBreakpoint.mobileNormal) {
         return RefinedSize.normal;
       }
+
+      // Below mobileNormal threshold
+      return RefinedSize.small;
     }
 
     if (deviceScreenType == DeviceScreenType.watch) {

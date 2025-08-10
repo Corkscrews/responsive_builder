@@ -1,3 +1,7 @@
+## 0.8.8
+
+ - Make `ScreenBreakpoints.normal` mandatory (small/normal/large) and improve device detection (watch/phone/tablet/desktop).
+
 ## 0.8.7
 
  - Similar to 0.8.6 with changes to the `README.md`.

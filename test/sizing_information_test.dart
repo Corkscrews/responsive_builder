@@ -61,10 +61,12 @@ void main() {
 
   group('ScreenBreakpoints', () {
     test('constructor and toString', () {
-      const breakpoints = ScreenBreakpoints(small: 300, large: 1200);
+      const breakpoints = ScreenBreakpoints(small: 300, normal: 700, large: 1200);
       expect(breakpoints.small, 300);
+      expect(breakpoints.normal, 700);
       expect(breakpoints.large, 1200);
       expect(breakpoints.toString(), contains('Large: 1200'));
+      expect(breakpoints.toString(), contains('Normal: 700'));
       expect(breakpoints.toString(), contains('Small: 300'));
     });
   });

@@ -75,27 +75,44 @@ class SizingInformation {
 /// Manually define screen resolution breakpoints for device type detection.
 ///
 /// This class allows you to override the default breakpoints used to determine
-/// whether a device should be considered small (mobile) or large
-///  (tablet/desktop). The breakpoints are defined in logical pixels.
+/// whether a device should be considered a watch, phone, tablet, or desktop.
+/// The breakpoints are defined in logical pixels.
+///
+/// Behavior with three-tier classification when [normal] is provided:
+/// - width < [small]                 => watch
+/// - [small] <= width < [normal]     => phone
+/// - [normal] <= width < [large]     => tablet
+/// - width >= [large]                => desktop or tablet (based on platform)
+///
+/// If [normal] is null, legacy two-tier behavior is used:
+/// - width < [small]                 => watch
+/// - [small] <= width < [large]      => phone
+/// - width >= [large]                => desktop or tablet (based on platform)
 class ScreenBreakpoints {
-  /// The breakpoint below which a device is considered small (mobile)
+  /// The breakpoint below which a device is considered a watch
   final double small;
+
+  /// The breakpoint between phone and tablet.
+  ///
+  /// Values greater than or equal to [normal] and less than [large]
+  /// will be considered tablet.
+  final double normal;
 
   /// The breakpoint above which a device is considered large (tablet/desktop)
   final double large;
 
   /// Creates a new [ScreenBreakpoints] instance.
   ///
-  /// Both [small] and [large] parameters are required and should be specified
-  /// in logical pixels.
+  /// [small], [normal] and [large] are required and should be specified in logical pixels.
   const ScreenBreakpoints({
     required this.small,
+    required this.normal,
     required this.large,
   });
 
   @override
   String toString() {
-    return "Large: $large, Small: $small";
+    return "Large: $large, Normal: $normal, Small: $small";
   }
 }
 

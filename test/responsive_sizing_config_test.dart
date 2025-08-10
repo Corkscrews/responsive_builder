@@ -18,7 +18,8 @@ void main() {
       final config = ResponsiveSizingConfig.instance;
       final breakpoints = config.breakpoints;
       expect(breakpoints.small, 300);
-      expect(breakpoints.large, 600);
+      expect(breakpoints.large, 950);
+      expect(breakpoints.normal, 600);
     });
 
     test('default refined breakpoints are returned if not set', () {
@@ -40,7 +41,7 @@ void main() {
 
     test('setCustomBreakpoints sets custom breakpoints', () {
       final config = ResponsiveSizingConfig.instance;
-      const custom = ScreenBreakpoints(small: 111, large: 999);
+      const custom = ScreenBreakpoints(small: 111, normal: 555, large: 999);
       config.setCustomBreakpoints(custom);
       expect(config.breakpoints.small, 111);
       expect(config.breakpoints.large, 999);
