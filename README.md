@@ -13,7 +13,7 @@ It aims to provide you with widgets that make it easy to build different UI's al
 Add responsive_builder as dependency to your pubspec file.
 
 ```
-responsive_builder2: ^0.8.7
+responsive_builder2: ^0.8.8
 ```
 
 ## Usage
@@ -167,9 +167,9 @@ import 'package:responsive_builder2/responsive_builder2.dart';
 //ScreenTypeLayout with custom breakpoints supplied
 ScreenTypeLayout(
   breakpoints: ScreenBreakpoints(
-    tablet: 600,
-    desktop: 950,
-    watch: 300
+    small: 300,
+    normal: 600,
+    large: 950,
   ),
   mobile: Container(color:Colors.blue),
   tablet: Container(color: Colors.yellow),
@@ -187,7 +187,7 @@ If you want to set the breakpoints for the responsive builders once you can call
 ```dart
 void main() {
   ResponsiveSizingConfig.instance.setCustomBreakpoints(
-    ScreenBreakpoints(large: 550, small: 200),
+    ScreenBreakpoints(small: 200, normal: 550, large: 1000),
   );
   runApp(MyApp());
 }
