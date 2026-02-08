@@ -59,4 +59,74 @@ void main() {
     // Assert the offset was updated due to scroll
     expect(offsetValue, greaterThan(0.0));
   });
+
+  testWidgets(
+      'ScrollTransformView disposes ScrollController without errors',
+      (WidgetTester tester) async {
+    // Build the widget
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ScrollTransformView(
+            children: [
+              ScrollTransformItem(
+                builder: (offset) => SizedBox(height: 500),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // Pump a frame to settle
+    await tester.pumpAndSettle();
+
+    // Remove the widget from the tree, triggering dispose
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SizedBox(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // If no error is thrown, disposal was successful
+    // Flutter test framework will catch "A ScrollController was used after
+    // being disposed" errors automatically
+  });
+
+  testWidgets(
+      'ScrollTransformView handles multiple children with different transforms',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ScrollTransformView(
+            children: [
+              ScrollTransformItem(
+                offsetBuilder: (offset) => Offset(offset, 0),
+                builder: (offset) =>
+                    Text('Item1: $offset', key: ValueKey('item1')),
+              ),
+              ScrollTransformItem(
+                offsetBuilder: (offset) => Offset(0, offset),
+                scaleBuilder: (offset) => 1 + offset / 1000,
+                builder: (offset) =>
+                    Text('Item2: $offset', key: ValueKey('item2')),
+              ),
+              ScrollTransformItem(
+                builder: (_) => SizedBox(height: 1000),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(ValueKey('item1')), findsOneWidget);
+    expect(find.byKey(ValueKey('item2')), findsOneWidget);
+  });
 }

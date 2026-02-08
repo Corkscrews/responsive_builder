@@ -68,6 +68,8 @@ void main() {
   });
 
   group('getDeviceType-Config set', () {
+    tearDown(() => ResponsiveSizingConfig.instance.setCustomBreakpoints(null));
+
     test(
         'When global config desktop set to 800, should return desktop when width is 801',
         () {
@@ -87,13 +89,13 @@ void main() {
       expect(screenType, DeviceScreenType.tablet);
     });
     test(
-        'When global config tablet set to 550, should return mobile when width is 799',
+        'When global config normal set to 550, should return phone when width is 400',
         () {
       ResponsiveSizingConfig.instance
           .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 550, large: 1000));
 
-      final screenType = getDeviceType(Size(799, 1000), null, false);
-      expect(screenType, DeviceScreenType.tablet);
+      final screenType = getDeviceType(Size(400, 1000), null, false);
+      expect(screenType, DeviceScreenType.phone);
     });
 
     test(
@@ -102,8 +104,8 @@ void main() {
       ResponsiveSizingConfig.instance
           .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 550, large: 1000));
 
-      final screenType = getDeviceType(Size(799, 1000), null, false);
-      expect(screenType, DeviceScreenType.tablet);
+      final screenType = getDeviceType(Size(199, 1000), null, false);
+      expect(screenType, DeviceScreenType.watch);
     });
   });
 
@@ -150,6 +152,8 @@ void main() {
   });
 
   group('getRefinedSize - Custom break points -', () {
+    tearDown(() => ResponsiveSizingConfig.instance.setCustomBreakpoints(null));
+
     test(
         'When called with mobile size in small range, should return RefinedSize.small',
         () {
@@ -343,6 +347,324 @@ void main() {
       final refinedSize =
           getRefinedSize(Size(769, 1000), isWebOrDesktop: false);
       expect(refinedSize, RefinedSize.normal);
+    });
+  });
+
+  group('getDeviceType-Boundary values', () {
+    test('Should return watch when width is exactly at small breakpoint boundary (299)',
+        () {
+      final screenType = getDeviceType(Size(299, 800), null, false);
+      expect(screenType, DeviceScreenType.watch);
+    });
+
+    test('Should return phone when width is exactly at small breakpoint (300)',
+        () {
+      final screenType = getDeviceType(Size(300, 800), null, false);
+      expect(screenType, DeviceScreenType.phone);
+    });
+
+    test('Should return phone when width is just below normal breakpoint (599)',
+        () {
+      final screenType = getDeviceType(Size(599, 800), null, false);
+      expect(screenType, DeviceScreenType.phone);
+    });
+
+    test('Should return tablet when width is exactly at normal breakpoint (600)',
+        () {
+      final screenType = getDeviceType(Size(600, 800), null, false);
+      expect(screenType, DeviceScreenType.tablet);
+    });
+
+    test('Should return tablet when width is just below large breakpoint (949)',
+        () {
+      final screenType = getDeviceType(Size(949, 800), null, false);
+      expect(screenType, DeviceScreenType.tablet);
+    });
+
+    test('Should return desktop when width is exactly at large breakpoint (950) on desktop',
+        () {
+      final screenType = getDeviceType(Size(950, 800), null, true);
+      expect(screenType, DeviceScreenType.desktop);
+    });
+
+    test('Should return tablet when width is exactly at large breakpoint (950) on mobile',
+        () {
+      final screenType = getDeviceType(Size(950, 800), null, false);
+      expect(screenType, DeviceScreenType.tablet);
+    });
+  });
+
+  group('getDeviceType-Edge cases', () {
+    test('Should handle zero-width screen', () {
+      final screenType = getDeviceType(Size(0, 0), null, false);
+      expect(screenType, DeviceScreenType.watch);
+    });
+
+    test('Should handle very large screen dimensions', () {
+      final screenType = getDeviceType(Size(100000, 100000), null, true);
+      expect(screenType, DeviceScreenType.desktop);
+    });
+
+    test('Should use shortestSide on mobile platform', () {
+      // On mobile (isWebOrDesktop=false), deviceWidth = size.shortestSide
+      // Size(1200, 400).shortestSide = 400, which is phone range
+      final screenType = getDeviceType(Size(1200, 400), null, false);
+      expect(screenType, DeviceScreenType.phone);
+    });
+
+    test('Should use width on desktop platform', () {
+      // On desktop (isWebOrDesktop=true), deviceWidth = size.width = 1200
+      final screenType = getDeviceType(Size(1200, 400), null, true);
+      expect(screenType, DeviceScreenType.desktop);
+    });
+  });
+
+  group('getRefinedSize - Default mobile sizes', () {
+    setUp(() => ResponsiveSizingConfig.instance.setCustomBreakpoints(null));
+
+    test('Should return small for mobile in small range', () {
+      // mobileSmall = 320, mobileNormal = 375
+      // Width 320, shortestSide = 320 (since 320 < 800)
+      final refinedSize =
+          getRefinedSize(Size(320, 800), isWebOrDesktop: false);
+      expect(refinedSize, RefinedSize.small);
+    });
+
+    test('Should return normal for mobile in normal range', () {
+      // mobileNormal = 375, mobileLarge = 414
+      final refinedSize =
+          getRefinedSize(Size(375, 800), isWebOrDesktop: false);
+      expect(refinedSize, RefinedSize.normal);
+    });
+
+    test('Should return large for mobile in large range', () {
+      // mobileLarge = 414, mobileExtraLarge = 480
+      final refinedSize =
+          getRefinedSize(Size(414, 800), isWebOrDesktop: false);
+      expect(refinedSize, RefinedSize.large);
+    });
+
+    test('Should return extraLarge for mobile in extraLarge range', () {
+      // mobileExtraLarge = 480
+      final refinedSize =
+          getRefinedSize(Size(480, 800), isWebOrDesktop: false);
+      expect(refinedSize, RefinedSize.extraLarge);
+    });
+  });
+
+  group('getRefinedSize - Default desktop small', () {
+    setUp(() => ResponsiveSizingConfig.instance.setCustomBreakpoints(null));
+
+    test('Should return small for desktop in small range', () {
+      // desktopSmall = 950, desktopNormal = 1920
+      // On desktop, deviceWidth = size.width = 1000
+      final refinedSize =
+          getRefinedSize(Size(1000, 800), isWebOrDesktop: true);
+      expect(refinedSize, RefinedSize.small);
+    });
+  });
+
+  group('getRefinedSize - Watch', () {
+    setUp(() => ResponsiveSizingConfig.instance.setCustomBreakpoints(null));
+
+    test('Should return small for watch with default breakpoints', () {
+      // Watch is width < 300 (shortestSide for mobile)
+      final refinedSize =
+          getRefinedSize(Size(200, 200), isWebOrDesktop: false);
+      expect(refinedSize, RefinedSize.small);
+    });
+  });
+
+  group('getValueForScreenType-Fallback chains', () {
+    testWidgets('desktop falls back to tablet when no desktop value', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(size: Size(1200, 800)),
+            child: Builder(
+              builder: (context) {
+                expect(
+                  getValueForScreenType(
+                    context: context,
+                    isWebOrDesktop: true,
+                    mobile: 'mobile',
+                    tablet: 'tablet',
+                  ),
+                  'tablet',
+                );
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+    });
+
+    testWidgets('desktop falls back to mobile when no desktop or tablet value',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(size: Size(1200, 800)),
+            child: Builder(
+              builder: (context) {
+                expect(
+                  getValueForScreenType(
+                    context: context,
+                    isWebOrDesktop: true,
+                    mobile: 'mobile',
+                  ),
+                  'mobile',
+                );
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+    });
+
+    testWidgets('tablet falls back to mobile when no tablet value',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(size: Size(700, 800)),
+            child: Builder(
+              builder: (context) {
+                expect(
+                  getValueForScreenType(
+                    context: context,
+                    isWebOrDesktop: false,
+                    mobile: 'mobile',
+                  ),
+                  'mobile',
+                );
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+    });
+
+    testWidgets('watch falls back to mobile when no watch value',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(size: Size(200, 800)),
+            child: Builder(
+              builder: (context) {
+                expect(
+                  getValueForScreenType(
+                    context: context,
+                    isWebOrDesktop: false,
+                    mobile: 'mobile',
+                  ),
+                  'mobile',
+                );
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+    });
+  });
+
+  group('getValueForRefinedSize-Fallback chains', () {
+    testWidgets('extraLarge falls back to large when no extraLarge value',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(size: Size(4100, 1000)),
+            child: Builder(
+              builder: (context) {
+                expect(
+                  getValueForRefinedSize(
+                    context: context,
+                    normal: 'normal',
+                    large: 'large',
+                  ),
+                  'large',
+                );
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+    });
+
+    testWidgets('extraLarge falls back to normal when no extraLarge or large value',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(size: Size(4100, 1000)),
+            child: Builder(
+              builder: (context) {
+                expect(
+                  getValueForRefinedSize(
+                    context: context,
+                    normal: 'normal',
+                  ),
+                  'normal',
+                );
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+    });
+
+    testWidgets('large falls back to normal when no large value',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(size: Size(3850, 1000)),
+            child: Builder(
+              builder: (context) {
+                expect(
+                  getValueForRefinedSize(
+                    context: context,
+                    normal: 'normal',
+                  ),
+                  'normal',
+                );
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+    });
+
+    testWidgets('small falls back to normal when no small value',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(size: Size(1000, 1000)),
+            child: Builder(
+              builder: (context) {
+                expect(
+                  getValueForRefinedSize(
+                    context: context,
+                    normal: 'normal',
+                  ),
+                  'normal',
+                );
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
     });
   });
 

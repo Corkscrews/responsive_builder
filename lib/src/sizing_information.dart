@@ -58,12 +58,30 @@ class SizingInformation {
   /// * [refinedSize]: The refined size category
   /// * [screenSize]: The total screen dimensions
   /// * [localWidgetSize]: The dimensions of the local widget's constraints
-  SizingInformation({
+  const SizingInformation({
     required this.deviceScreenType,
     required this.refinedSize,
     required this.screenSize,
     required this.localWidgetSize,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SizingInformation &&
+          runtimeType == other.runtimeType &&
+          deviceScreenType == other.deviceScreenType &&
+          refinedSize == other.refinedSize &&
+          screenSize == other.screenSize &&
+          localWidgetSize == other.localWidgetSize;
+
+  @override
+  int get hashCode => Object.hash(
+        deviceScreenType,
+        refinedSize,
+        screenSize,
+        localWidgetSize,
+      );
 
   @override
   String toString() {
@@ -103,16 +121,34 @@ class ScreenBreakpoints {
 
   /// Creates a new [ScreenBreakpoints] instance.
   ///
-  /// [small], [normal] and [large] are required and should be specified in logical pixels.
+  /// [small], [normal] and [large] are required and should be specified in
+  /// logical pixels. Values must satisfy `small < normal < large` and all
+  /// must be non-negative.
   const ScreenBreakpoints({
     required this.small,
     required this.normal,
     required this.large,
-  });
+  })  : assert(small >= 0, 'small must be non-negative'),
+        assert(normal >= 0, 'normal must be non-negative'),
+        assert(large >= 0, 'large must be non-negative'),
+        assert(small < normal, 'small must be less than normal'),
+        assert(normal < large, 'normal must be less than large');
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ScreenBreakpoints &&
+          runtimeType == other.runtimeType &&
+          small == other.small &&
+          normal == other.normal &&
+          large == other.large;
+
+  @override
+  int get hashCode => Object.hash(small, normal, large);
 
   @override
   String toString() {
-    return "Large: $large, Normal: $normal, Small: $small";
+    return 'Large: $large, Normal: $normal, Small: $small';
   }
 }
 
@@ -148,7 +184,8 @@ class RefinedBreakpoints {
   /// Creates a new [RefinedBreakpoints] instance.
   ///
   /// All parameters are optional and default to common device sizes.
-  /// Values should be specified in logical pixels.
+  /// Values should be specified in logical pixels. Within each device
+  /// category, values must satisfy `small < normal < large < extraLarge`.
   const RefinedBreakpoints({
     this.mobileSmall = 320,
     this.mobileNormal = 375,
@@ -162,17 +199,68 @@ class RefinedBreakpoints {
     this.desktopNormal = 1920,
     this.desktopLarge = 3840,
     this.desktopExtraLarge = 4096,
-  });
+  })  : assert(mobileSmall < mobileNormal,
+            'mobileSmall must be less than mobileNormal'),
+        assert(mobileNormal < mobileLarge,
+            'mobileNormal must be less than mobileLarge'),
+        assert(mobileLarge < mobileExtraLarge,
+            'mobileLarge must be less than mobileExtraLarge'),
+        assert(tabletSmall < tabletNormal,
+            'tabletSmall must be less than tabletNormal'),
+        assert(tabletNormal < tabletLarge,
+            'tabletNormal must be less than tabletLarge'),
+        assert(tabletLarge < tabletExtraLarge,
+            'tabletLarge must be less than tabletExtraLarge'),
+        assert(desktopSmall < desktopNormal,
+            'desktopSmall must be less than desktopNormal'),
+        assert(desktopNormal < desktopLarge,
+            'desktopNormal must be less than desktopLarge'),
+        assert(desktopLarge < desktopExtraLarge,
+            'desktopLarge must be less than desktopExtraLarge');
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RefinedBreakpoints &&
+          runtimeType == other.runtimeType &&
+          mobileSmall == other.mobileSmall &&
+          mobileNormal == other.mobileNormal &&
+          mobileLarge == other.mobileLarge &&
+          mobileExtraLarge == other.mobileExtraLarge &&
+          tabletSmall == other.tabletSmall &&
+          tabletNormal == other.tabletNormal &&
+          tabletLarge == other.tabletLarge &&
+          tabletExtraLarge == other.tabletExtraLarge &&
+          desktopSmall == other.desktopSmall &&
+          desktopNormal == other.desktopNormal &&
+          desktopLarge == other.desktopLarge &&
+          desktopExtraLarge == other.desktopExtraLarge;
+
+  @override
+  int get hashCode => Object.hash(
+        mobileSmall,
+        mobileNormal,
+        mobileLarge,
+        mobileExtraLarge,
+        tabletSmall,
+        tabletNormal,
+        tabletLarge,
+        tabletExtraLarge,
+        desktopSmall,
+        desktopNormal,
+        desktopLarge,
+        desktopExtraLarge,
+      );
 
   @override
   String toString() {
-    return "Tablet: Small - $tabletSmall " +
-        "Normal - $tabletNormal " +
-        "Large - $tabletLarge " +
-        "ExtraLarge - $tabletExtraLarge " +
-        "Mobile: Small - $mobileSmall " +
-        "Normal - $mobileNormal " +
-        "Large - $mobileLarge " +
-        "ExtraLarge - $mobileExtraLarge";
+    return 'Tablet: Small - $tabletSmall '
+        'Normal - $tabletNormal '
+        'Large - $tabletLarge '
+        'ExtraLarge - $tabletExtraLarge '
+        'Mobile: Small - $mobileSmall '
+        'Normal - $mobileNormal '
+        'Large - $mobileLarge '
+        'ExtraLarge - $mobileExtraLarge';
   }
 }

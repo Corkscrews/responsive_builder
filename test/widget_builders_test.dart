@@ -458,6 +458,187 @@ void main() {
     });
   });
 
+  group('ScreenTypeLayout.builder - crash paths', () {
+    testWidgets(
+        'shows desktop layout when only desktop is provided on desktop screen',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(size: Size(1200, 800)),
+            child: ScreenTypeLayout.builder(
+              isWebOrDesktop: true,
+              desktop: (_) => const Text('Desktop'),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Desktop'), findsOneWidget);
+    });
+
+    testWidgets(
+        'shows desktop fallback when only desktop is provided on phone screen',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(size: Size(400, 800)),
+            child: ScreenTypeLayout.builder(
+              isWebOrDesktop: false,
+              desktop: (_) => const Text('Desktop'),
+            ),
+          ),
+        ),
+      );
+      // With BUG-002/003 fix, should fall back to desktop as the only available builder
+      expect(find.text('Desktop'), findsOneWidget);
+    });
+
+    testWidgets(
+        'shows desktop fallback when only desktop is provided on watch screen',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(size: Size(200, 800)),
+            child: ScreenTypeLayout.builder(
+              isWebOrDesktop: false,
+              desktop: (_) => const Text('Desktop'),
+            ),
+          ),
+        ),
+      );
+      // Should fall back to desktop as the only available builder
+      expect(find.text('Desktop'), findsOneWidget);
+    });
+  });
+
+  group('ScreenTypeLayout.builder2 - crash paths', () {
+    testWidgets(
+        'shows desktop fallback when only desktop is provided on phone screen',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(size: Size(400, 800)),
+            child: ScreenTypeLayout.builder2(
+              isWebOrDesktop: false,
+              desktop: (_, sizing) => const Text('Desktop2'),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Desktop2'), findsOneWidget);
+    });
+
+    testWidgets(
+        'shows desktop fallback when only desktop is provided on watch screen',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(size: Size(200, 800)),
+            child: ScreenTypeLayout.builder2(
+              isWebOrDesktop: false,
+              desktop: (_, sizing) => const Text('Desktop2'),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Desktop2'), findsOneWidget);
+    });
+  });
+
+  group('OrientationLayoutBuilder - additional coverage', () {
+    testWidgets(
+        'calls portrait builder when mode is portrait regardless of orientation',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(
+                size: Size(800, 400)), // Landscape orientation
+            child: OrientationLayoutBuilder(
+              mode: OrientationLayoutBuilderMode.portrait,
+              portrait: (_) => const Text('Portrait'),
+              landscape: (_) => const Text('Landscape'),
+            ),
+          ),
+        ),
+      );
+      // Should use portrait builder even though orientation is landscape
+      expect(find.text('Portrait'), findsOneWidget);
+    });
+
+    testWidgets(
+        'calls portrait builder when landscape orientation but no landscape builder',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(
+                size: Size(800, 400)), // Landscape orientation
+            child: OrientationLayoutBuilder(
+              portrait: (_) => const Text('Portrait'),
+              // No landscape builder provided
+            ),
+          ),
+        ),
+      );
+      // Should fall back to portrait builder
+      expect(find.text('Portrait'), findsOneWidget);
+    });
+  });
+
+  group('ResponsiveBuilder - additional coverage', () {
+    testWidgets('provides correct SizingInformation with custom breakpoints',
+        (tester) async {
+      SizingInformation? info;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(size: Size(500, 800)),
+            child: ResponsiveBuilder(
+              isWebOrDesktop: false,
+              breakpoints: const ScreenBreakpoints(
+                  small: 200, normal: 400, large: 800),
+              builder: (context, sizingInformation) {
+                info = sizingInformation;
+                return const Text('Custom');
+              },
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Custom'), findsOneWidget);
+      expect(info, isNotNull);
+      // Width 500 with breakpoints small=200, normal=400, large=800
+      // shortestSide of (500, 800) = 500, and 400 <= 500 < 800 = tablet
+      expect(info!.isTablet, isTrue);
+    });
+
+    testWidgets('screenSize matches MediaQuery size', (tester) async {
+      SizingInformation? info;
+      const testSize = Size(375, 812);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(size: testSize),
+            child: ResponsiveBuilder(
+              isWebOrDesktop: false,
+              builder: (context, sizingInformation) {
+                info = sizingInformation;
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+      expect(info, isNotNull);
+      expect(info!.screenSize, testSize);
+    });
+  });
+
   group('RefinedLayoutBuilder', () {
     testWidgets('shows normal layout by default', (tester) async {
       await tester.pumpWidget(

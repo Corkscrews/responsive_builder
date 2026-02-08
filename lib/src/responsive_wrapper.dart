@@ -23,10 +23,10 @@ class ResponsiveApp extends StatelessWidget {
   final bool preferDesktop;
 
   const ResponsiveApp({
-    Key? key,
+    super.key,
     required this.builder,
     this.preferDesktop = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -74,10 +74,10 @@ extension ResponsiveAppExtensions on num {
 /// TODO: Replace with ValueNotifier for better state management
 class ResponsiveAppUtil {
   /// The current screen height in logical pixels
-  static late double height;
+  static double height = 0;
 
   /// The current screen width in logical pixels
-  static late double width;
+  static double width = 0;
 
   /// Whether to prefer desktop layouts over mobile layouts
   static bool preferDesktop = false;
@@ -86,19 +86,15 @@ class ResponsiveAppUtil {
   /// and orientation.
   ///
   /// This method should be called whenever the screen size or orientation
-  /// changes.
-  /// It handles the swapping of width and height values when in landscape
-  /// orientation.
+  /// changes. Width and height are taken directly from the constraints,
+  /// since Flutter's [LayoutBuilder] already provides dimensions that
+  /// reflect the actual layout (width is the horizontal extent, height is
+  /// the vertical extent, regardless of orientation).
   static void setScreenSize(
     BoxConstraints constraints,
     Orientation orientation,
   ) {
-    if (orientation == Orientation.portrait) {
-      width = constraints.maxWidth;
-      height = constraints.maxHeight;
-    } else {
-      width = constraints.maxHeight;
-      height = constraints.maxWidth;
-    }
+    width = constraints.maxWidth;
+    height = constraints.maxHeight;
   }
 }

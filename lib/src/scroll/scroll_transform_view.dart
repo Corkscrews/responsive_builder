@@ -1,13 +1,13 @@
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
-import 'package:responsive_builder2/src/scroll/scroll_transform_item.dart';
+import 'scroll_controller_scope.dart';
+import 'scroll_transform_item.dart';
 
 /// A widget that creates a scrollable view with transformable children.
 ///
 /// This widget provides a scrollable container that enables scroll-based
 /// transformations on its children. It uses a [ScrollController] to track
 /// scroll position and provides it to child [ScrollTransformItem] widgets
-/// through a [ChangeNotifierProvider].
+/// through a [ScrollControllerScope].
 ///
 /// Example:
 /// ```dart
@@ -33,9 +33,9 @@ class ScrollTransformView extends StatefulWidget {
   ///
   /// The [children] parameter is required and must not be null.
   const ScrollTransformView({
-    Key? key,
+    super.key,
     required this.children,
-  }) : super(key: key);
+  });
 
   @override
   State<ScrollTransformView> createState() => _ScrollTransformViewState();
@@ -46,11 +46,17 @@ class _ScrollTransformViewState extends State<ScrollTransformView> {
   final scrollController = ScrollController();
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       controller: scrollController,
-      child: ChangeNotifierProvider(
-        create: (context) => scrollController,
+      child: ScrollControllerScope(
+        controller: scrollController,
         child: Column(
           children: widget.children,
         ),

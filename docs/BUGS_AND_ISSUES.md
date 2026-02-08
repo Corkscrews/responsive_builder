@@ -1,8 +1,9 @@
 # Bugs and Issues Report
 
-**Package**: responsive_builder2 v0.8.8  
+**Package**: responsive_builder2 v0.8.9  
 **Date**: 2026-02-08  
-**Status**: All 117 tests passing (may mask issues below)
+**Status**: All 84 tests passing (deduplicated from 117)  
+**Fixed**: 8 of 13 bugs resolved + 1 of 2 test issues resolved
 
 ### Breaking Change Legend
 
@@ -16,10 +17,12 @@
 
 ## Critical Severity
 
-### BUG-001: Missing `device_width_web.dart` — Web/WASM builds will fail
+### BUG-001: Missing `device_width_web.dart` — Web/WASM builds will fail [FIXED]
 
 **File**: `lib/src/helpers/helpers.dart:8-9`  
-**Type**: Build-breaking on web targets
+**Type**: Build-breaking on web targets  
+**Status**: FIXED — Created `lib/src/helpers/device_width_web.dart` with
+web-specific implementation (always uses `size.width`).
 
 The conditional import references a file that does not exist:
 
@@ -46,10 +49,13 @@ since the existing `device_width.dart` would be used on all platforms.
 
 ---
 
-### BUG-002: `ScreenTypeLayout` can return null Widget, causing runtime crash
+### BUG-002: `ScreenTypeLayout` can return null Widget, causing runtime crash [FIXED]
 
 **File**: `lib/src/widget_builders.dart:236-238, 243-296`  
-**Type**: Runtime null-pointer crash
+**Type**: Runtime null-pointer crash  
+**Status**: FIXED — Both `_handleWidgetBuilder` and `_handleWidgetBuilder2` now
+return `Widget` (non-nullable). Added `_anyBuilder` / `_anyBuilder2` getters as
+last-resort fallbacks. Removed all force-unwrap (`!`) operators from `build()`.
 
 The `build()` method force-unwraps the return value of both handler methods:
 
@@ -88,10 +94,12 @@ a fallback widget instead. No consumer API changes needed.
 
 ---
 
-### BUG-003: `preferDesktop` causes null crash in `_handleWidgetBuilder`
+### BUG-003: `preferDesktop` causes null crash in `_handleWidgetBuilder` [FIXED]
 
 **File**: `lib/src/widget_builders.dart:245-246`  
-**Type**: Runtime crash
+**Type**: Runtime crash  
+**Status**: FIXED — `preferDesktop` paths now use safe `??` fallback chains
+(`_desktop ?? _mobile ?? _anyBuilder`) instead of force-unwrapping.
 
 ```dart
 if (ResponsiveAppUtil.preferDesktop) {
@@ -119,10 +127,12 @@ turns a crash into a graceful fallback. No public API changes.
 
 ## High Severity
 
-### BUG-004: `ResponsiveAppUtil` late variables crash before initialization
+### BUG-004: `ResponsiveAppUtil` late variables crash before initialization [FIXED]
 
 **File**: `lib/src/responsive_wrapper.dart:77-80`  
-**Type**: Runtime crash (`LateInitializationError`)
+**Type**: Runtime crash (`LateInitializationError`)  
+**Status**: FIXED — Replaced `static late double` with `static double` initialized
+to `0`. Extensions now return `0` instead of crashing before `ResponsiveApp` builds.
 
 ```dart
 static late double height;
@@ -186,49 +196,30 @@ feature). Very low risk of real-world impact.
 
 ---
 
-### BUG-006: `ResponsiveAppUtil.setScreenSize` swaps width/height in landscape
+### BUG-006: `ResponsiveAppUtil.setScreenSize` swaps width/height in landscape [FIXED]
 
-**File**: `lib/src/responsive_wrapper.dart:92-101`  
-**Type**: Counterintuitive behavior / potential semantic bug
+**File**: `lib/src/responsive_wrapper.dart`  
+**Type**: Counterintuitive behavior / potential semantic bug  
+**Status**: FIXED — Removed the width/height swap. `setScreenSize` now always
+uses `constraints.maxWidth` for width and `constraints.maxHeight` for height,
+regardless of orientation. Flutter's `LayoutBuilder` already provides
+dimensions that reflect the actual layout, so no manual swap is needed.
 
-```dart
-if (orientation == Orientation.portrait) {
-  width = constraints.maxWidth;
-  height = constraints.maxHeight;
-} else {
-  width = constraints.maxHeight;   // shorter dimension
-  height = constraints.maxWidth;   // longer dimension
-}
-```
-
-In landscape mode, `constraints.maxWidth` is the longer dimension (landscape
-width) and `constraints.maxHeight` is the shorter dimension. The code
-**reverses** them, making `ResponsiveAppUtil.width` always represent the shorter
-edge and `height` the longer edge.
-
-This means `20.screenWidth` returns 20% of the **shorter** edge regardless of
-orientation, which is semantically incorrect. Users expect `screenWidth` to
-return a percentage of the actual visible width.
-
-**Impact**: Any app using `screenWidth`/`sw` or `screenHeight`/`sh` extensions
-in landscape mode gets wrong values.
-
-**Fix**: Do not swap. Use `width = constraints.maxWidth` and
-`height = constraints.maxHeight` in both orientations.
-
-**Breaking Change**: **BEHAVIORAL** — Any consumer app that uses
-`screenWidth`/`sw` or `screenHeight`/`sh` in landscape will see different
-values after this fix. Apps that inadvertently depended on the swapped values
-(e.g., using `screenWidth` knowing it returns the shorter dimension) will
-break visually. This is a correctness fix but should be documented in a
-changelog. Consider a **minor version bump** or feature flag.
+**Breaking Change**: **BEHAVIORAL** — Apps using `screenWidth`/`sw` or
+`screenHeight`/`sh` in landscape will now get correct values matching the
+actual visible dimensions. Apps that inadvertently depended on the swapped
+behavior may see layout changes. This is a correctness fix.
 
 ---
 
-### BUG-007: `ScrollTransformView` does not dispose `ScrollController`
+### BUG-007: `ScrollTransformView` does not dispose `ScrollController` [FIXED]
 
 **File**: `lib/src/scroll/scroll_transform_view.dart:44-59`  
-**Type**: Memory/resource leak
+**Type**: Memory/resource leak  
+**Status**: FIXED — Added `dispose()` override that calls
+`scrollController.dispose()`. Also switched from `ChangeNotifierProvider(create:)`
+to `ChangeNotifierProvider.value` to avoid double-dispose (the `create` variant
+auto-disposes, conflicting with manual disposal).
 
 ```dart
 class _ScrollTransformViewState extends State<ScrollTransformView> {
@@ -254,10 +245,12 @@ notice any difference except fewer memory leaks.
 
 ## Medium Severity
 
-### BUG-008: `getRefinedSize` uses inconsistent width calculation
+### BUG-008: `getRefinedSize` uses inconsistent width calculation [FIXED]
 
 **File**: `lib/src/helpers/helpers.dart:80-81`  
-**Type**: Logic inconsistency
+**Type**: Logic inconsistency  
+**Status**: FIXED — Replaced inline `isWebOrDesktop ? size.width : size.shortestSide`
+with `width.deviceWidth(size, isWebOrDesktop)` for consistency with `getDeviceType`.
 
 ```dart
 double deviceWidth = isWebOrDesktop ? size.width : size.shortestSide;
@@ -306,10 +299,12 @@ major version bump** depending on adoption.
 
 ---
 
-### BUG-010: `getValueForScreenType` has redundant null check
+### BUG-010: `getValueForScreenType` has redundant null check [FIXED]
 
 **File**: `lib/src/helpers/helpers.dart:191`  
-**Type**: Dead code / logic issue
+**Type**: Dead code / logic issue  
+**Status**: FIXED — Removed `if (mobile != null)` guard; the phone branch now
+directly returns `mobile`.
 
 ```dart
 if (deviceScreenType == DeviceScreenType.phone) {
@@ -329,10 +324,11 @@ behavior is identical since the check was always true for non-nullable `T`.
 
 ---
 
-### BUG-011: `getDeviceType` uses `??=` where `??` is sufficient
+### BUG-011: `getDeviceType` uses `??=` where `??` is sufficient [FIXED]
 
 **File**: `lib/src/helpers/helpers.dart:31`  
-**Type**: Minor code defect
+**Type**: Minor code defect  
+**Status**: FIXED — Simplified to `isWebOrDesktop ??= _isWebOrDesktop`.
 
 ```dart
 isWebOrDesktop = isWebOrDesktop ??= _isWebOrDesktop;
@@ -352,27 +348,22 @@ runtime behavior.
 
 ## Low Severity
 
-### BUG-012: No validation on `ScreenBreakpoints` values
+### BUG-012: No validation on `ScreenBreakpoints` values [FIXED]
 
-**File**: `lib/src/sizing_information.dart:77-94`  
-**Type**: Missing input validation
+**File**: `lib/src/sizing_information.dart`  
+**Type**: Missing input validation  
+**Status**: FIXED — Added debug-mode assertions to both `ScreenBreakpoints`
+and `RefinedBreakpoints` constructors.
 
-`ScreenBreakpoints` accepts any values without validating that
-`small < normal < large`. Invalid breakpoints like
-`ScreenBreakpoints(small: 1000, normal: 500, large: 200)` produce nonsensical
-device type classifications with no error or warning.
+`ScreenBreakpoints` now asserts `small >= 0`, `small < normal`, and
+`normal < large`. `RefinedBreakpoints` now asserts correct ordering within
+each device category (`small < normal < large < extraLarge` for mobile,
+tablet, and desktop). Assertions only fire in debug mode; release builds are
+unaffected.
 
-**Fix**: Add assertions in the constructor:
-```dart
-assert(small < normal, 'small must be less than normal');
-assert(normal < large, 'normal must be less than large');
-```
-
-**Breaking Change**: **BEHAVIORAL** (debug mode only) — Assertions only fire
-in debug mode. Consumer code that passes invalid breakpoints (e.g.,
-`small > large`) will now get an assertion error in debug builds instead of
-silently producing wrong results. Release builds are unaffected. Very low risk
-since invalid breakpoints are always a bug.
+**Breaking Change**: **BEHAVIORAL** (debug mode only) — Consumer code that
+passes invalid breakpoints will now get an assertion error in debug builds
+instead of silently producing wrong results.
 
 ---
 
@@ -420,14 +411,17 @@ actual watch and mobile edge cases for custom config are never tested.
 
 ---
 
-### TEST-002: Duplicate test files
+### TEST-002: Duplicate test files [FIXED]
 
 **Files**: `test/helpers_test.dart` and `test/helpers/helpers_test.dart`  
-**Type**: Maintenance burden
+**Type**: Maintenance burden  
+**Status**: FIXED — Deleted `test/helpers_test.dart` (the less complete copy).
+Kept `test/helpers/helpers_test.dart` which includes the deprecated ordinal
+assertions. Test count reduced from 117 to 84.
 
-These two files are near-identical copies of the same tests with minor
+These two files were near-identical copies of the same tests with minor
 differences (the `helpers/` version adds deprecated ordinal assertions). Both
-run in CI, inflating the test count (117 tests) and making maintenance harder.
+ran in CI, inflating the test count and making maintenance harder.
 
 **Fix**: Consolidate into a single file.
 

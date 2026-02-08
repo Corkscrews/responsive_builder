@@ -1,4 +1,24 @@
-## 0.8.8
+## 0.9.0
+
+### Bug Fixes
+
+- **Fix landscape width/height swap** — `ResponsiveAppUtil.setScreenSize` no longer swaps width and height in landscape. `screenWidth`/`sw` and `screenHeight`/`sh` now correctly reflect the actual visible dimensions regardless of orientation.
+- **Fix `ScrollController` disposal** — `ScrollTransformView` now properly disposes its `ScrollController`, preventing memory leaks.
+- **Fix `ResponsiveAppUtil` defaults** — `width`, `height` now default to `0` and `preferDesktop` to `false` instead of using `late` variables that would crash if accessed before `ResponsiveApp` is built.
+- **Fix double assignment in `getDeviceType`** — Simplified redundant `isWebOrDesktop = isWebOrDesktop ??= _isWebOrDesktop` to `isWebOrDesktop ??= _isWebOrDesktop`.
+
+### Improvements
+
+- **Remove `provider` dependency** — Replaced with a built-in `ScrollControllerScope` (an `InheritedNotifier`) to inject `ScrollController` into scroll transform widgets. The package now has zero third-party dependencies beyond Flutter and `universal_platform`.
+- **Add breakpoint validation** — `ScreenBreakpoints` and `RefinedBreakpoints` constructors now assert correct ordering (`small < normal < large`) in debug mode. Invalid breakpoints produce a clear assertion error instead of silently returning wrong device types.
+- **Add value equality** — `SizingInformation`, `ScreenBreakpoints`, and `RefinedBreakpoints` now implement `operator ==` and `hashCode` for value-based comparison.
+- **Make `SizingInformation` const** — The constructor is now `const`, enabling compile-time constant instances.
+- **Modernize constructors** — All widget constructors updated to `super.key` syntax; removed redundant `= null` parameter defaults.
+- **Split `widget_builders.dart`** — Refactored into separate files (`typedefs.dart`, `responsive_builder.dart`, `orientation_layout_builder.dart`, `screen_type_layout.dart`, `refined_layout_builder.dart`). The original file is now a barrel export for backward compatibility.
+- **Improve test coverage** — Expanded from 84 to 145 tests, covering boundary values, edge cases, fallback chains, disposal, and breakpoint validation.
+- **Rewrite README** — Added table of contents, API reference tables, documented all widgets (including `RefinedLayoutBuilder` and scroll transforms), default breakpoint values, and refined breakpoint configuration.
+
+## 0.8.9
 
  - Make `ScreenBreakpoints.normal` mandatory (small/normal/large) and improve device detection (watch/phone/tablet/desktop).
 

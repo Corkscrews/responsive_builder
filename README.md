@@ -2,289 +2,446 @@
 
 # responsive_builder2
 
-The responsive builder package contains widgets that allows you to create a readable responsive UI. The package is inspired by the [Responsive UI Flutter series](https://www.youtube.com/playlist?list=PLQQBiNtFxeyJbOkeKBe_JG36gm1V2629H) originally created by FilledStacks and forked by Corkscrews.
+A Flutter package for building readable, responsive UIs across every screen size and device type. Forked from [FilledStacks' responsive_builder](https://www.youtube.com/playlist?list=PLQQBiNtFxeyJbOkeKBe_JG36gm1V2629H) and maintained by [Corkscrews](https://github.com/Corkscrews/responsive_builder).
 
-It aims to provide you with widgets that make it easy to build different UI's along two different Axis. Orientation x ScreenType. This means you can have a separate layout for Mobile - Landscape, Mobile - Portrait, Tablet - Landscape and Tablet-Portrait.
+Build separate layouts along two axes -- **Orientation** and **Screen Type** -- so you can provide distinct UIs for combinations like Phone-Portrait, Tablet-Landscape, Desktop, and Watch without littering your code with `MediaQuery` conditionals.
 
 ![Responsive Layout Preview](https://github.com/Corkscrews/responsive_builder/blob/master/responsive_example.gif)
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Widgets](#widgets)
+  - [ResponsiveBuilder](#responsivebuilder)
+  - [ScreenTypeLayout](#screentypelayout)
+  - [OrientationLayoutBuilder](#orientationlayoutbuilder)
+  - [RefinedLayoutBuilder](#refinedlayoutbuilder)
+- [Helper Functions](#helper-functions)
+  - [getValueForScreenType](#getvalueforscreentype)
+  - [getValueForRefinedSize](#getvalueforrefinedsize)
+- [Responsive Sizing Extensions](#responsive-sizing-extensions)
+- [Breakpoints](#breakpoints)
+  - [Default Breakpoints](#default-breakpoints)
+  - [Custom Breakpoints (per widget)](#custom-breakpoints-per-widget)
+  - [Global Breakpoints](#global-breakpoints)
+  - [Refined Breakpoints](#refined-breakpoints)
+- [Scroll Transform Effects](#scroll-transform-effects)
+- [API Reference](#api-reference)
+- [Contributing](#contributing)
+
 ## Installation
 
-Add responsive_builder as dependency to your pubspec file.
+Add the package to your `pubspec.yaml`:
 
+```yaml
+dependencies:
+  responsive_builder2: ^0.8.9
 ```
-responsive_builder2: ^0.8.8
-```
 
-## Usage
-
-This package provides two main widgets for building responsive UIs: `ResponsiveBuilder` and `ScreenTypeLayout.builder2`.
-
-- `ResponsiveBuilder` gives you a builder function with a `SizingInformation` object, which contains details like the current `DeviceScreenType`, `screenSize`, and `localWidgetSize`. This allows you to make fine-grained responsive decisions at any widget level.
-
-- `ScreenTypeLayout.builder2` is a more advanced option that also provides a `SizingInformation` object to each builder for different device types (mobile, tablet, desktop, watch). This makes it easy to define separate layouts for each device type, while still having access to all sizing information for granular control.
-
-Use these widgets to easily adapt your UI to different screen sizes and device types, from the overall view down to individual widgets.
-
-### ScreenTypeLayout.builder2
-
-If you want even more control and need access to the current sizing information (such as device type, screen size, and refined size) in your builder, you can use the new `ScreenTypeLayout.builder2`. This variant provides a `SizingInformation` object to each builder, allowing you to make more granular responsive decisions.
+Then import it:
 
 ```dart
-// import the package
 import 'package:responsive_builder2/responsive_builder2.dart';
-
-// Construct and pass in a widget builder per screen type, with sizing info
-ScreenTypeLayout.builder2(
-  phone: (BuildContext context, SizingInformation sizing) => Container(
-    color: sizing.isPhone ? Colors.blue : Colors.grey,
-    child: Text('Phone, Width: \\${sizing.screenSize.width}'),
-  ),
-  tablet: (BuildContext context, SizingInformation sizing) => Container(
-    color: Colors.yellow,
-    child: Text('Tablet, Refined: \\${sizing.refinedSize}'),
-  ),
-  desktop: (BuildContext context, SizingInformation sizing) => Container(
-    color: Colors.red,
-    child: Text('Desktop, Size: \\${sizing.screenSize}'),
-  ),
-  watch: (BuildContext context, SizingInformation sizing) => Container(
-    color: Colors.purple,
-    child: Text('Watch'),
-  ),
-);
 ```
 
-## ScreenTypeLayout (Deprecated)
+## Quick Start
 
-This widget is similar to the Orientation Layout Builder in that it takes in Widgets that are named and displayed for different screen types.
-
-```dart
-// import the package
-import 'package:responsive_builder2/responsive_builder2.dart';
-
-// Construct and pass in a widget per screen type
-ScreenTypeLayout(
-  mobile: Container(color:Colors.blue),
-  tablet: Container(color: Colors.yellow),
-  desktop: Container(color: Colors.red),
-  watch: Container(color: Colors.purple),
-);
-```
-
-If you don't want to build all the widgets at once, you can use the widget builder. A widget for the right type of screen will be created only when needed.
+Wrap any part of your widget tree with `ScreenTypeLayout.builder` to render a different layout per device type:
 
 ```dart
-// Construct and pass in a widget builder per screen type
 ScreenTypeLayout.builder(
-  mobile: (BuildContext context) => Container(color:Colors.blue),
-  tablet: (BuildContext context) => Container(color:Colors.yellow),
-  desktop: (BuildContext context) => Container(color:Colors.red),
-  watch: (BuildContext context) => Container(color:Colors.purple),
+  phone: (context) => const PhoneLayout(),
+  tablet: (context) => const TabletLayout(),
+  desktop: (context) => const DesktopLayout(),
 );
 ```
 
-The `SizingInformation` parameter provides:
-- `deviceScreenType`: The current device type (mobile, tablet, desktop, watch)
-- `refinedSize`: A more granular size classification (small, normal, large, extraLarge)
-- `screenSize`: The overall screen size
-- `localWidgetSize`: The size of the widget being built
-
-This allows you to build highly dynamic and responsive UIs based on detailed device and layout information.
-
-### Responsive Builder
-
-The `ResponsiveBuilder` is used as any other builder widget.
+Or use `ResponsiveBuilder` for full control via `SizingInformation`:
 
 ```dart
-// import the package
-import 'package:responsive_builder2/responsive_builder2.dart';
-
-// Use the widget
 ResponsiveBuilder(
-    builder: (context, sizingInformation) {
-      // Check the sizing information here and return your UI
-          if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
-          return Container(color:Colors.blue);
-        }
-
-        if (sizingInformation.deviceScreenType == DeviceScreenType.tablet) {
-          return Container(color:Colors.red);
-        }
-
-        if (sizingInformation.deviceScreenType == DeviceScreenType.watch) {
-          return Container(color:Colors.yellow);
-        }
-
-        return Container(color:Colors.purple);
-      },
-    },
-  );
-}
-```
-
-This will return different colour containers depending on which device it's being shown on. A simple way to test this is to either run your code on Flutter web and resize the window or add the [device_preview](https://pub.dev/packages/device_preview) package and view on different devices.
-
-## Orientation Layout Builder
-
-This widget can be seen as a duplicate of the `OrientationBuilder` that comes with Flutter, but the point of this library is to help you produce a readable responsive UI code base. As mentioned in the [follow along tutorial](https://youtu.be/udsysUj-X4w) I didn't want responsive code riddled with conditionals around orientation, `MediaQuery` or Renderbox sizes. That's why I created this builder.
-
-The usage is easy. Provide a builder function that returns a UI for each of the orientations.
-
-```dart
-// import the package
-import 'package:responsive_builder2/responsive_builder2.dart';
-
-// Return a widget function per orientation
-OrientationLayoutBuilder(
-  portrait: (context) => Container(color: Colors.green),
-  landscape: (context) => Container(color: Colors.pink),
-),
-```
-
-This will return a different coloured container when you swap orientations for your device. In a more readable manner than checking the orientation with a conditional.
-
-Sometimes you want your app to stay in a certain orientation. use `mode` property in `OrientationLayoutBuilder` to enforce this.
-
-```dart
-OrientationLayoutBuilder(
-  /// default mode is 'auto'
-  mode: info.isPhone
-    ? OrientationLayoutBuilderMode.portrait
-    : OrientationLayoutBuilderMode.auto,
-  ...
-),
-```
-
-## Custom Screen Breakpoints
-
-If you wish to define your own custom break points you can do so by supplying either the `ScreenTypeLayout` or `ResponsiveBuilder` widgets with a `breakpoints` argument.
-
-```dart
-// import the package
-import 'package:responsive_builder2/responsive_builder2.dart';
-
-//ScreenTypeLayout with custom breakpoints supplied
-ScreenTypeLayout(
-  breakpoints: ScreenBreakpoints(
-    small: 300,
-    normal: 600,
-    large: 950,
-  ),
-  mobile: Container(color:Colors.blue),
-  tablet: Container(color: Colors.yellow),
-  desktop: Container(color: Colors.red),
-  watch: Container(color: Colors.purple),
+  builder: (context, sizingInfo) {
+    if (sizingInfo.isDesktop) return const DesktopLayout();
+    if (sizingInfo.isTablet) return const TabletLayout();
+    return const PhoneLayout();
+  },
 );
 ```
 
-To get a more in depth run through of this package I would highly recommend [watching this tutorial](https://youtu.be/udsysUj-X4w) where I show you how it was built and how to use it.
+## Widgets
 
-## Global Screen Breakpoints
+### ResponsiveBuilder
 
-If you want to set the breakpoints for the responsive builders once you can call the line below before the app starts, or wherever you see fit.
+The foundational builder widget. It provides a `SizingInformation` object containing everything you need to make responsive decisions:
 
 ```dart
-void main() {
-  ResponsiveSizingConfig.instance.setCustomBreakpoints(
-    ScreenBreakpoints(small: 200, normal: 550, large: 1000),
-  );
-  runApp(MyApp());
-}
+ResponsiveBuilder(
+  builder: (context, sizingInfo) {
+    // sizingInfo.deviceScreenType  - watch, phone, tablet, desktop
+    // sizingInfo.refinedSize       - small, normal, large, extraLarge
+    // sizingInfo.screenSize        - full screen Size
+    // sizingInfo.localWidgetSize   - this widget's constrained Size
+
+    return Text('Device: ${sizingInfo.deviceScreenType}');
+  },
+);
 ```
 
-This will then reflect the screen types based on what you have set here. You can then still pass in custom break points per `ScreenTypeLayout` if you wish that will override these values for that specific `ScreenTypeLayout` builder.
+You can also pass custom breakpoints to a specific `ResponsiveBuilder`:
 
-## Screen Type specific values
+```dart
+ResponsiveBuilder(
+  breakpoints: const ScreenBreakpoints(small: 200, normal: 500, large: 900),
+  builder: (context, sizingInfo) {
+    return Text('Type: ${sizingInfo.deviceScreenType}');
+  },
+);
+```
 
-Sometimes you don't want to write an entire new UI just to change one value. Say for instance you want your padding on mobile to be 10, on the tablet 30 and desktop 60. Instead of re-writing UI you can use the `getValueForScreenType` function. This is a generic function that will return your value based on the screen type you're on. Take this example below.
+#### SizingInformation
+
+| Property           | Type               | Description                                    |
+|--------------------|---------------------|-----------------------------------------------|
+| `deviceScreenType` | `DeviceScreenType`  | watch, phone, tablet, or desktop              |
+| `refinedSize`      | `RefinedSize`       | small, normal, large, or extraLarge           |
+| `screenSize`       | `Size`              | The full screen dimensions                    |
+| `localWidgetSize`  | `Size`              | The widget's own constrained dimensions       |
+| `isWatch`          | `bool`              | Convenience getter                            |
+| `isPhone`          | `bool`              | Convenience getter                            |
+| `isTablet`         | `bool`              | Convenience getter                            |
+| `isDesktop`        | `bool`              | Convenience getter                            |
+| `isSmall`          | `bool`              | Convenience getter for refined size           |
+| `isNormal`         | `bool`              | Convenience getter for refined size           |
+| `isLarge`          | `bool`              | Convenience getter for refined size           |
+| `isExtraLarge`     | `bool`              | Convenience getter for refined size           |
+
+### ScreenTypeLayout
+
+Declaratively assign a layout for each device type. Widgets are built lazily -- only the one matching the current screen type is created.
+
+**Using builders** (recommended):
+
+```dart
+ScreenTypeLayout.builder(
+  phone: (context) => Container(color: Colors.blue),
+  tablet: (context) => Container(color: Colors.yellow),
+  desktop: (context) => Container(color: Colors.red),
+  watch: (context) => Container(color: Colors.purple),
+);
+```
+
+**With sizing information** -- use `builder2` to receive a `SizingInformation` object in each builder for more granular control:
+
+```dart
+ScreenTypeLayout.builder2(
+  phone: (context, sizing) => Padding(
+    padding: EdgeInsets.all(sizing.isSmall ? 8 : 16),
+    child: const Text('Phone'),
+  ),
+  tablet: (context, sizing) => const Text('Tablet'),
+  desktop: (context, sizing) => const Text('Desktop'),
+);
+```
+
+**Fallback behavior**: if a layout is not provided for the current device type, it falls back to the next smaller type. For example, if no `desktop` builder is supplied, the `tablet` builder is used; if that is also missing, `phone` is used.
+
+### OrientationLayoutBuilder
+
+Provides separate builders for portrait and landscape orientations. This is a more readable alternative to raw `OrientationBuilder` conditionals:
+
+```dart
+OrientationLayoutBuilder(
+  portrait: (context) => const PortraitView(),
+  landscape: (context) => const LandscapeView(),
+);
+```
+
+Use the `mode` property to lock the orientation:
+
+```dart
+OrientationLayoutBuilder(
+  mode: OrientationLayoutBuilderMode.portrait, // always portrait
+  portrait: (context) => const PortraitView(),
+  landscape: (context) => const LandscapeView(),
+);
+```
+
+A common pattern is to lock phone orientation but allow tablets to rotate:
+
+```dart
+ResponsiveBuilder(
+  builder: (context, sizingInfo) {
+    return OrientationLayoutBuilder(
+      mode: sizingInfo.isPhone
+          ? OrientationLayoutBuilderMode.portrait
+          : OrientationLayoutBuilderMode.auto,
+      portrait: (context) => const PortraitView(),
+      landscape: (context) => const LandscapeView(),
+    );
+  },
+);
+```
+
+### RefinedLayoutBuilder
+
+When you need more granularity than just device type, `RefinedLayoutBuilder` lets you provide layouts for four size tiers within the current device type:
+
+```dart
+RefinedLayoutBuilder(
+  small: (context) => const CompactView(),
+  normal: (context) => const NormalView(),
+  large: (context) => const ExpandedView(),
+  extraLarge: (context) => const UltraWideView(),
+);
+```
+
+The `normal` builder is required; all others are optional and fall back gracefully.
+
+## Helper Functions
+
+### getValueForScreenType
+
+Returns a value based on the current device type. Perfect for changing a single property without rebuilding the entire widget:
 
 ```dart
 Container(
-  padding: EdgeInsets.all(10),
-  child: Text('Best Responsive Package'),
+  padding: EdgeInsets.all(
+    getValueForScreenType<double>(
+      context: context,
+      mobile: 10,
+      tablet: 30,
+      desktop: 60,
+    ),
+  ),
+  child: const Text('Responsive padding'),
 )
 ```
 
-What if you ONLY want to update the padding based on the device screen size. You could do.
+Conditionally show or hide widgets:
 
 ```dart
-var deviceType = getDeviceType(MediaQuery.sizeOf(context));
-var paddingValue = 0;
-switch(deviceType) {
-  case DeviceScreenType.desktop:
-    paddingValue = 60;
-    break;
-  case DeviceScreenType.tablet:
-    paddingValue = 30;
-    break;
-  case DeviceScreenType.mobile:
-    paddingValue = 10;
-    break;
-}
-Container(
-  padding: EdgeInsets.all(paddingValue),
-  child: Text('Best Responsive Package'),
-)
+if (getValueForScreenType<bool>(
+  context: context,
+  mobile: false,
+  tablet: true,
+))
+  const SideNavigation(),
 ```
 
-Ooooorrrr, you can use shorthand for that.
+### getValueForRefinedSize
+
+Same concept, but based on refined size categories instead of device type:
 
 ```dart
-Container(
-  padding: EdgeInsets.all(getValueForScreenType<double>(
-                context: context,
-                mobile: 10,
-                tablet: 30,
-                desktop: 60,
-              )),
-  child: Text('Best Responsive Package'),
-)
+final fontSize = getValueForRefinedSize<double>(
+  context: context,
+  small: 12,
+  normal: 16,
+  large: 20,
+  extraLarge: 24,
+);
 ```
 
-It will return the value you give it for the DeviceScreen you're viewing the app on. For instance you want to hide a widget on mobile and not on tablet?
+## Responsive Sizing Extensions
 
-```dart
-getValueForScreenType<bool>(
-    context: context,
-    mobile: false,
-    tablet: true,
-  ) ? MyWidget() : Container()
-```
-
-That will return true on tablet devices and false on mobile.
-
-## Responsive Sizing
-
-In addition to providing specific layouts per device type there's also the requirement to size items based on the screen width or height. To use this functionality we added some responsive extensions. To use this wrap your Material or Cupertino App with the `ResponsiveApp` widget. 
+For percentage-based sizing relative to the screen dimensions, wrap your app with `ResponsiveApp`:
 
 ```dart
 ResponsiveApp(
   builder: (context) => MaterialApp(
-    ...
-  )
+    home: const MyHomePage(),
+  ),
 )
 ```
 
-This is required to use the following functionality. 
-
-### Responsive Sizing
-
-To use the responsive sizing all you need to do is the following. 
+Then use the extensions on any `num`:
 
 ```dart
-import 'package:responsive_builder2/responsive_builder2.dart';
+SizedBox(
+  width: 50.screenWidth,   // 50% of screen width
+  height: 30.screenHeight, // 30% of screen height
+)
 
-SizedBox(height: 30.screenHeight); // Or sh for shorthand
-Text('respond to width', style: TextStyle(fontSize: 10.sw));
+// Shorthand aliases
+SizedBox(
+  width: 50.sw,
+  height: 30.sh,
+)
 ```
 
-Use the number you want as the percentage and call the `screenHeight` or `screenWidth` extension. These also have shorthand extensions `sh` and `sw`.
+| Extension      | Shorthand | Description                          |
+|----------------|-----------|--------------------------------------|
+| `screenWidth`  | `sw`      | Percentage of the screen width       |
+| `screenHeight` | `sh`      | Percentage of the screen height      |
 
-## Contribution
+The `preferDesktop` flag on `ResponsiveApp` controls the default layout preference when a specific layout is not provided:
 
-1. Fork it!
-2. Create your feature branch: `git checkout -b feature/newFeature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin feature/newFeature`
-5. Submit a pull request.
+```dart
+ResponsiveApp(
+  preferDesktop: true,
+  builder: (context) => MaterialApp(...),
+)
+```
+
+## Breakpoints
+
+### Default Breakpoints
+
+The package uses these defaults to classify device types (in logical pixels):
+
+| Device Type | Width Range          |
+|-------------|----------------------|
+| Watch       | < 300                |
+| Phone       | 300 -- 599           |
+| Tablet      | 600 -- 949           |
+| Desktop     | >= 950               |
+
+> On mobile platforms, the `shortestSide` of the screen is used for classification (so rotating a phone does not change its device type). On web and desktop platforms, the actual width is used.
+
+### Custom Breakpoints (per widget)
+
+Override breakpoints for a specific widget:
+
+```dart
+ScreenTypeLayout.builder(
+  breakpoints: const ScreenBreakpoints(
+    small: 200,
+    normal: 500,
+    large: 900,
+  ),
+  phone: (context) => const PhoneLayout(),
+  tablet: (context) => const TabletLayout(),
+  desktop: (context) => const DesktopLayout(),
+);
+```
+
+Breakpoints are validated in debug mode -- the values must satisfy `small < normal < large`.
+
+### Global Breakpoints
+
+Set breakpoints once for the entire app:
+
+```dart
+void main() {
+  ResponsiveSizingConfig.instance.setCustomBreakpoints(
+    const ScreenBreakpoints(small: 200, normal: 550, large: 1000),
+  );
+  runApp(const MyApp());
+}
+```
+
+Per-widget breakpoints will override global ones when provided.
+
+### Refined Breakpoints
+
+Refined breakpoints provide a second level of granularity within each device type. The defaults are:
+
+| Category | Small | Normal | Large | Extra Large |
+|----------|-------|--------|-------|-------------|
+| Mobile   | 320   | 375    | 414   | 480         |
+| Tablet   | 600   | 768    | 850   | 900         |
+| Desktop  | 950   | 1920   | 3840  | 4096        |
+
+Override them globally alongside screen breakpoints:
+
+```dart
+ResponsiveSizingConfig.instance.setCustomBreakpoints(
+  const ScreenBreakpoints(small: 200, normal: 550, large: 1000),
+  customRefinedBreakpoints: const RefinedBreakpoints(
+    mobileSmall: 280,
+    mobileNormal: 350,
+    mobileLarge: 420,
+    mobileExtraLarge: 500,
+    tabletSmall: 550,
+    tabletNormal: 700,
+    tabletLarge: 850,
+    tabletExtraLarge: 950,
+    desktopSmall: 1000,
+    desktopNormal: 1400,
+    desktopLarge: 1920,
+    desktopExtraLarge: 2560,
+  ),
+);
+```
+
+## Scroll Transform Effects
+
+Create scroll-driven animations with `ScrollTransformView` and `ScrollTransformItem`:
+
+```dart
+ScrollTransformView(
+  children: [
+    ScrollTransformItem(
+      builder: (scrollOffset) => Container(
+        height: 200,
+        color: Colors.blue,
+        child: Text('Offset: $scrollOffset'),
+      ),
+      // Parallax: moves at half the scroll speed
+      offsetBuilder: (scrollOffset) => Offset(0, -scrollOffset * 0.5),
+    ),
+    ScrollTransformItem(
+      builder: (scrollOffset) => Container(
+        height: 300,
+        color: Colors.red,
+      ),
+      // Scale down as user scrolls
+      scaleBuilder: (scrollOffset) => (1 - scrollOffset * 0.001).clamp(0.5, 1.0),
+    ),
+  ],
+)
+```
+
+| Property        | Type                                    | Description                              |
+|-----------------|-----------------------------------------|------------------------------------------|
+| `builder`       | `Widget Function(double scrollOffset)`  | **Required.** Builds the child widget    |
+| `offsetBuilder` | `Offset Function(double scrollOffset)?` | Optional translation transform           |
+| `scaleBuilder`  | `double Function(double scrollOffset)?` | Optional scale transform                 |
+
+## API Reference
+
+### Widgets
+
+| Widget                      | Description                                              |
+|-----------------------------|----------------------------------------------------------|
+| `ResponsiveBuilder`         | Builder with full `SizingInformation`                    |
+| `ScreenTypeLayout.builder`  | Declarative layout per device type                       |
+| `ScreenTypeLayout.builder2` | Layout per device type with `SizingInformation`          |
+| `OrientationLayoutBuilder`  | Separate builders for portrait / landscape               |
+| `RefinedLayoutBuilder`      | Layout per refined size (small, normal, large, XL)       |
+| `ResponsiveApp`             | Wrapper enabling responsive sizing extensions            |
+| `ScrollTransformView`       | Scrollable view with transform effects                   |
+| `ScrollTransformItem`       | Child widget with scroll-driven transforms               |
+
+### Helper Functions
+
+| Function                  | Description                                           |
+|---------------------------|-------------------------------------------------------|
+| `getDeviceType`           | Returns `DeviceScreenType` for a given `Size`         |
+| `getRefinedSize`          | Returns `RefinedSize` for a given `Size`              |
+| `getValueForScreenType`   | Returns a value based on device type                  |
+| `getValueForRefinedSize`  | Returns a value based on refined size                 |
+
+### Enums
+
+| Enum               | Values                                |
+|--------------------|---------------------------------------|
+| `DeviceScreenType` | `watch`, `phone`, `tablet`, `desktop` |
+| `RefinedSize`      | `small`, `normal`, `large`, `extraLarge` |
+
+### Data Classes
+
+| Class               | Description                                         |
+|---------------------|-----------------------------------------------------|
+| `SizingInformation` | Screen type, refined size, screen and widget sizes   |
+| `ScreenBreakpoints` | Custom breakpoints: `small`, `normal`, `large`       |
+| `RefinedBreakpoints`| Granular breakpoints per device category             |
+
+## Contributing
+
+1. Fork it
+2. Create your feature branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -am 'Add my feature'`
+4. Push to the branch: `git push origin feature/my-feature`
+5. Submit a pull request

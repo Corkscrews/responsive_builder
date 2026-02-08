@@ -27,8 +27,8 @@ final _isWebOrDesktop = kIsWeb ||
 /// Returns [DeviceScreenType] representing the current device type (desktop,
 /// tablet, phone, or watch)
 DeviceScreenType getDeviceType(Size size,
-    [ScreenBreakpoints? breakpoint = null, bool? isWebOrDesktop]) {
-  isWebOrDesktop = isWebOrDesktop ??= _isWebOrDesktop;
+    [ScreenBreakpoints? breakpoint, bool? isWebOrDesktop]) {
+  isWebOrDesktop ??= _isWebOrDesktop;
   double deviceWidth = width.deviceWidth(size, isWebOrDesktop);
 
   // Use provided breakpoint with middle (normal) threshold
@@ -94,7 +94,7 @@ RefinedSize getRefinedSize(
   bool? isWebOrDesktop,
 }) {
   isWebOrDesktop = isWebOrDesktop ?? _isWebOrDesktop;
-  double deviceWidth = isWebOrDesktop ? size.width : size.shortestSide;
+  double deviceWidth = width.deviceWidth(size, isWebOrDesktop);
 
   DeviceScreenType deviceScreenType = getDeviceType(size, null, isWebOrDesktop);
 
@@ -254,7 +254,7 @@ T getValueForScreenType<T>({
   }
 
   if (deviceScreenType == DeviceScreenType.phone) {
-    if (mobile != null) return mobile;
+    return mobile;
   }
 
   // If none of the layouts above are supplied we use the prefered layout based

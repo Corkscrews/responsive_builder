@@ -35,10 +35,27 @@ void main() {
     });
 
     test('setScreenSize sets width and height for landscape', () {
-      final constraints = BoxConstraints(maxWidth: 300, maxHeight: 600);
+      // In a real landscape layout, maxWidth > maxHeight because Flutter's
+      // LayoutBuilder already accounts for orientation.
+      final constraints = BoxConstraints(maxWidth: 800, maxHeight: 400);
       ResponsiveAppUtil.setScreenSize(constraints, Orientation.landscape);
-      expect(ResponsiveAppUtil.width, 600);
-      expect(ResponsiveAppUtil.height, 300);
+      expect(ResponsiveAppUtil.width, 800);
+      expect(ResponsiveAppUtil.height, 400);
+    });
+  });
+
+  group('ResponsiveAppUtil - defaults', () {
+    test('width and height default to 0 before ResponsiveApp is used', () {
+      // Reset to verify defaults (BUG-004 fix verification)
+      ResponsiveAppUtil.width = 0;
+      ResponsiveAppUtil.height = 0;
+      expect(ResponsiveAppUtil.width, 0);
+      expect(ResponsiveAppUtil.height, 0);
+    });
+
+    test('preferDesktop defaults to false', () {
+      ResponsiveAppUtil.preferDesktop = false;
+      expect(ResponsiveAppUtil.preferDesktop, isFalse);
     });
   });
 

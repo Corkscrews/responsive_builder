@@ -1,6 +1,6 @@
 # Architecture Review
 
-**Package**: responsive_builder2 v0.8.8  
+**Package**: responsive_builder2 v0.8.9  
 **Date**: 2026-02-08
 
 ---

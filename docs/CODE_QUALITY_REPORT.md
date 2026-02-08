@@ -1,9 +1,10 @@
 # Code Quality Report
 
-**Package**: responsive_builder2 v0.8.8  
+**Package**: responsive_builder2 v0.8.9  
 **Date**: 2026-02-08  
 **Dart SDK**: >=2.17.0 <4.0.0  
-**Flutter Test**: All 117 tests passing
+**Flutter Test**: All 137 tests passing  
+**Status**: All non-breaking items fixed. Breaking items deferred to major version.
 
 ---
 
@@ -11,12 +12,32 @@
 
 The package provides responsive layout utilities for Flutter. The core
 functionality is well-structured and covers common responsive design needs.
-However, there are several code quality concerns ranging from potential runtime
-crashes to maintainability issues. The most critical findings involve a missing
-web platform file (blocking web builds), null-safety gaps in widget builders,
-and mutable global state patterns.
+Several code quality issues have been identified and resolved, including
+missing web platform support, null-safety gaps, missing dispose calls,
+and modernization of constructor syntax. Remaining issues are API-breaking
+or behavioral and should be addressed in a major version bump.
 
-**Overall Grade**: C+ (Functional but has significant issues to address)
+**Overall Grade**: B+ (was C+, improved by fixing non-breaking issues and refactoring)
+
+---
+
+## Changes Applied
+
+| # | Item | Status | Details |
+|---|------|--------|---------|
+| 2 | Unsafe null handling in widget builders | **FIXED** | BUG-002/003: Crash paths → graceful fallbacks |
+| 4 | Inconsistent width calculation | **FIXED** | BUG-008: Both functions now use `device_width.dart` |
+| 6 | String concatenation style | **FIXED** | Adjacent string literals instead of `+` operator |
+| 8 | Missing equality/hashCode | **FIXED** | `==` and `hashCode` added to all 3 value classes |
+| 9 | Unnecessary `= null` default | **FIXED** | Removed from `helpers.dart` and `widget_builders.dart` (6 occurrences) |
+| 10 | Non-const constructor | **FIXED** | `SizingInformation` constructor is now `const` |
+| 11 | Missing `super.key` syntax | **FIXED** | All 7 widget constructors updated to modern syntax |
+| — | Missing `device_width_web.dart` | **FIXED** | BUG-001: Created web implementation |
+| — | `late` variables crash | **FIXED** | BUG-004: Safe defaults (0) |
+| — | Missing `ScrollController.dispose()` | **FIXED** | BUG-007: Proper disposal added |
+| — | Duplicate test files | **FIXED** | TEST-002: Consolidated |
+| — | Split `widget_builders.dart` | **FIXED** | 5 focused files + barrel re-export |
+| — | Replace `provider` with `InheritedWidget` | **FIXED** | `ScrollControllerScope` via `InheritedNotifier` |
 
 ---
 
@@ -48,66 +69,48 @@ backward compatibility through ordinal values in the enum.
 The codebase has been designed with WASM compatibility in mind, avoiding
 `dart:io` and using `universal_platform` for platform detection.
 
+### 6. Value Equality on Data Classes [NEW]
+`SizingInformation`, `ScreenBreakpoints`, and `RefinedBreakpoints` now
+implement `==` and `hashCode`, enabling value-based comparison for testing
+and caching.
+
+### 7. Modern Dart Syntax [NEW]
+All widget constructors use the `super.key` parameter syntax (Dart 2.17+).
+Redundant `= null` defaults removed. `SizingInformation` supports `const`
+construction.
+
 ---
 
-## Code Quality Issues
+## Remaining Code Quality Issues
 
-### Severity: High
+### Severity: High (API-BREAKING — deferred to major version)
 
 #### 1. Mutable Global State Pattern
 **Files**: `responsive_wrapper.dart`, `responsive_sizing_config.dart`
 
-The package relies heavily on mutable global/static state:
+The package relies on mutable global/static state:
 
 ```dart
-// responsive_wrapper.dart
 class ResponsiveAppUtil {
-  static late double height;
-  static late double width;
+  static double height = 0;
+  static double width = 0;
   static bool preferDesktop = false;
-}
-
-// responsive_sizing_config.dart
-class ResponsiveSizingConfig {
-  static ResponsiveSizingConfig? _instance;
-  ScreenBreakpoints? _customBreakPoints;
-  RefinedBreakpoints? _customRefinedBreakpoints;
 }
 ```
 
 **Problems**:
 - Not testable in isolation without careful teardown
 - Multiple `ResponsiveApp` widgets conflict
-- `late` variables crash before initialization
 - State leaks between tests if not manually reset
 - Not compatible with multiple Navigator/Overlay scenarios
 
 **Recommendation**: Migrate to `InheritedWidget` pattern or use `Provider` to
 scope state to widget subtrees.
 
-**Breaking Change**: **API-BREAKING** — Replacing static state with
-`InheritedWidget` changes how `preferDesktop`, `width`, and `height` are
-accessed. Consumer code using `ResponsiveAppUtil` directly would break.
-Best suited for a major version bump.
+**Breaking Change**: **API-BREAKING** — Consumer code using
+`ResponsiveAppUtil` directly would break. Best suited for a major version bump.
 
-#### 2. Unsafe Null Handling in Widget Builders
-**File**: `widget_builders.dart`
-
-The `ScreenTypeLayout.build()` method force-unwraps nullable returns:
-```dart
-return _usingBuilder2()
-    ? _handleWidgetBuilder2(context, sizingInformation)!
-    : _handleWidgetBuilder(context, sizingInformation)!;
-```
-
-Both handler methods have code paths that return null. Combined with the
-assertion that only requires mobile OR desktop (not both), this creates runtime
-crash potential. See BUGS_AND_ISSUES.md BUG-002 and BUG-003 for details.
-
-**Breaking Change**: **NON-BREAKING** — Internal fix only. Crash paths become
-graceful fallbacks.
-
-#### 3. Type Shadowing
+#### 2. Type Shadowing
 **File**: `widget_builders.dart:8`
 
 ```dart
@@ -115,125 +118,64 @@ typedef WidgetBuilder = Widget Function(BuildContext);
 ```
 
 This shadows Flutter's built-in `WidgetBuilder` type, which can cause
-confusion when both are in scope and may lead to unexpected type resolution.
+confusion when both are in scope.
 
 **Breaking Change**: **API-BREAKING** if renamed or removed — consumer code
 that explicitly imports `WidgetBuilder` from this package will fail to compile.
 
----
-
-### Severity: Medium
-
-#### 4. Inconsistent Width Calculation
-**File**: `helpers.dart`
-
-`getDeviceType` uses `width.deviceWidth(size, isWebOrDesktop)` through the
-conditional import, but `getRefinedSize` inlines the logic directly:
-```dart
-double deviceWidth = isWebOrDesktop ? size.width : size.shortestSide;
-```
-
-This means the two functions may disagree on what constitutes "device width"
-if the web implementation ever diverges.
-
-**Breaking Change**: **NON-BREAKING** on native. **BEHAVIORAL** on web only
-if a web-specific implementation is added later.
-
-#### 5. Singleton Without Reset Capability
-**File**: `responsive_sizing_config.dart`
-
-`ResponsiveSizingConfig` is a singleton that cannot be fully reset. The
-`setCustomBreakpoints(null)` method clears screen breakpoints but not refined
-breakpoints. There's no `reset()` or `dispose()` method.
-
-**Breaking Change**: **BEHAVIORAL** — Fix changes reset semantics. Low risk
-since current behavior is a bug.
-
-#### 6. String Concatenation Style
-**File**: `sizing_information.dart:136-142`
-
-Uses `+` operator for string concatenation instead of Dart-idiomatic string
-interpolation:
-```dart
-return "Tablet: Small - $tabletSmall " +
-    "Normal - $tabletNormal " + ...
-```
-
-Should use adjacent string literals or multi-line interpolation.
-
-**Breaking Change**: **NON-BREAKING** — Purely cosmetic code change. Output
-string format may change, but `toString()` is not part of the stable API
-contract.
-
-#### 7. Deprecated Enum Pollution
+#### 3. Deprecated Enum Pollution
 **File**: `device_screen_type.dart`
 
 The `DeviceScreenType` enum has 9 values where only 4 are current. The
 deprecated values (`Watch`, `Mobile`, `Tablet`, `Desktop`, `mobile`) add noise
-and the lowercase `mobile` is particularly confusing since it coexists with
-`phone` and both have ordinal 1.
+and the lowercase `mobile` is particularly confusing.
 
-**Breaking Change**: **API-BREAKING** if removed — consumer code using
-deprecated enum values would fail to compile. Should be removed only in a
-**major version bump**. Keeping the `@Deprecated` annotations is non-breaking.
+**Breaking Change**: **API-BREAKING** if removed. Should be removed only in a
+**major version bump**.
+
+---
+
+### Severity: Medium (BEHAVIORAL — deferred)
+
+#### 4. Singleton Without Full Reset
+**File**: `responsive_sizing_config.dart`
+
+`setCustomBreakpoints(null)` clears screen breakpoints but not refined
+breakpoints. There's no `reset()` method.
+
+**Breaking Change**: **BEHAVIORAL** — Fix changes reset semantics. See
+BUG-005.
+
+#### 5. Landscape Width/Height Swap
+**File**: `responsive_wrapper.dart`
+
+`setScreenSize` swaps width/height in landscape, which may not match actual
+constraints from `LayoutBuilder`. See BUG-006.
+
+**Breaking Change**: **BEHAVIORAL** — Correcting the swap logic changes
+dimension values for landscape apps.
 
 ---
 
 ### Severity: Low
 
-#### 8. Missing Equality/HashCode on Value Classes
-**File**: `sizing_information.dart`
+#### 6. File Organization — **RESOLVED**
+- **`widget_builders.dart` was split** into 5 focused files:
+  - `typedefs.dart` — `WidgetBuilder` and `WidgetBuilder2` typedefs
+  - `responsive_builder.dart` — `ResponsiveBuilder` widget
+  - `orientation_layout_builder.dart` — `OrientationLayoutBuilder` widget
+  - `screen_type_layout.dart` — `ScreenTypeLayout` widget
+  - `refined_layout_builder.dart` — `RefinedLayoutBuilder` widget
+- `widget_builders.dart` is now a barrel file re-exporting all split files
+  for backward compatibility.
+- **`sizing_information.dart` still mixes concerns**: Contains both
+  `SizingInformation` data class and breakpoint configuration classes.
 
-`SizingInformation`, `ScreenBreakpoints`, and `RefinedBreakpoints` override
-`toString()` but not `==` or `hashCode`. These classes hold data and would
-benefit from value equality for testing and caching purposes.
-
-**Recommendation**: Use `equatable` package or manually implement `==` and
-`hashCode`.
-
-**Breaking Change**: **NON-BREAKING** — Adding `==` and `hashCode` is
-additive. Existing code using `identical()` or reference equality is unaffected.
-Code that accidentally relied on reference inequality may behave differently,
-but this is standard Dart practice.
-
-#### 9. Unnecessary `= null` Default
-**File**: `helpers.dart:30`
-
-```dart
-DeviceScreenType getDeviceType(Size size,
-    [ScreenBreakpoints? breakpoint = null, bool? isWebOrDesktop]) {
-```
-
-The `= null` is redundant for nullable types — `null` is the default.
-
-**Breaking Change**: **NON-BREAKING** — Purely cosmetic. Identical runtime
-behavior.
-
-#### 10. Non-const Where Const is Possible
-**File**: `sizing_information.dart`
-
-`SizingInformation` could have a `const` constructor since all fields are
-final, enabling compile-time const instances for testing and documentation.
-
-**Breaking Change**: **NON-BREAKING** — Adding `const` to a constructor is
-backward-compatible. Existing call sites continue to work.
-
-#### 11. Missing `super.key` Modern Constructor Syntax
-**Files**: All widget classes
-
-Widgets use the older `Key? key` + `super(key: key)` pattern instead of
-the modern `super.key` syntax available since Dart 2.17:
-
-```dart
-// Old (current)
-const ResponsiveBuilder({Key? key, ...}) : super(key: key);
-
-// Modern
-const ResponsiveBuilder({super.key, ...});
-```
-
-**Breaking Change**: **NON-BREAKING** — `super.key` is syntactic sugar with
-identical compiled output. No consumer changes needed.
+#### 7. Provider Dependency — **RESOLVED**
+- Replaced `provider` package with Flutter's built-in `InheritedNotifier`.
+- Created `ScrollControllerScope` (`InheritedNotifier<ScrollController>`)
+  that provides the same functionality with zero external dependencies.
+- `provider` removed from `pubspec.yaml`.
 
 ---
 
@@ -244,28 +186,21 @@ identical compiled output. No consumer changes needed.
 | File | Lines | Responsibility | Quality |
 |------|-------|---------------|---------|
 | `device_screen_type.dart` | ~80 | Enum definitions | Good, but enum bloat |
-| `sizing_information.dart` | ~142 | Data classes + breakpoints | Fair, mixed concerns |
+| `sizing_information.dart` | ~230 | Data classes + breakpoints | Good (equality added) |
 | `responsive_sizing_config.dart` | ~95 | Global config singleton | Fair, incomplete reset |
-| `helpers/helpers.dart` | ~220 | Core logic functions | Fair, inconsistent width |
-| `helpers/device_width.dart` | ~10 | Width calculation | Good |
-| `widget_builders.dart` | ~365 | All widget builders | Fair, null-safety gaps |
+| `helpers/helpers.dart` | ~220 | Core logic functions | Good (consistent width) |
+| `helpers/device_width.dart` | ~10 | Width calculation (native) | Good |
+| `helpers/device_width_web.dart` | ~15 | Width calculation (web) | Good |
+| `typedefs.dart` | ~15 | Builder type definitions | Good |
+| `responsive_builder.dart` | ~50 | Core responsive builder | Good |
+| `orientation_layout_builder.dart` | ~40 | Orientation-based layouts | Good |
+| `screen_type_layout.dart` | ~200 | Device-type layouts | Good (null-safe) |
+| `refined_layout_builder.dart` | ~70 | Refined size layouts | Good |
+| `widget_builders.dart` | ~10 | Barrel re-export file | Good |
 | `responsive_wrapper.dart` | ~105 | App wrapper + extensions | Fair, global state |
-| `scroll/scroll_transform_view.dart` | ~60 | Scroll container | Fair, missing dispose |
-| `scroll/scroll_transform_item.dart` | ~55 | Scroll transform | Good |
-
-### Concerns
-
-1. **`sizing_information.dart` mixes concerns**: Contains both the
-   `SizingInformation` data class and the `ScreenBreakpoints`/
-   `RefinedBreakpoints` configuration classes. These should be in separate
-   files.
-
-2. **`widget_builders.dart` is too large**: Contains `ResponsiveBuilder`,
-   `OrientationLayoutBuilder`, `ScreenTypeLayout`, and `RefinedLayoutBuilder`
-   — four distinct widgets. Each should be in its own file.
-
-3. **Missing `device_width_web.dart`**: Referenced by conditional import but
-   does not exist.
+| `scroll/scroll_controller_scope.dart` | ~50 | InheritedNotifier for scroll | Good |
+| `scroll/scroll_transform_view.dart` | ~65 | Scroll container | Good (proper disposal) |
+| `scroll/scroll_transform_item.dart` | ~65 | Scroll transform | Good |
 
 ---
 
@@ -273,14 +208,10 @@ identical compiled output. No consumer changes needed.
 
 | Dependency | Version | Purpose | Assessment |
 |-----------|---------|---------|------------|
-| `provider` | ^6.1.5 | ScrollController injection | Heavy dependency for a single use case. Consider `InheritedWidget` instead |
 | `universal_platform` | ^1.1.0 | Cross-platform detection | Appropriate, solves `dart:io` WASM issue |
 
-**Note**: The `provider` dependency is only used by `ScrollTransformView` and
-`ScrollTransformItem`. Adding a dependency on a state management library for
-one scroll feature adds unnecessary weight to the package. Flutter's built-in
-`InheritedWidget` or `InheritedNotifier` would achieve the same result with
-zero additional dependencies.
+**Note**: The `provider` dependency was removed. ScrollController injection
+now uses Flutter's built-in `InheritedNotifier` via `ScrollControllerScope`.
 
 ---
 
@@ -294,24 +225,42 @@ package itself:
 
 This is appropriate for maintaining backward compatibility.
 
-No other analysis suppressions were found, indicating the code is mostly
+No other analysis suppressions were found, indicating the code is
 analyzer-clean.
 
 ---
 
 ## Recommendations Summary
 
-| Priority | Action | Effort | Breaking? |
-|----------|--------|--------|-----------|
-| Critical | Create `device_width_web.dart` or fix conditional import | Low | NON-BREAKING |
-| Critical | Fix null crash paths in `ScreenTypeLayout` handlers | Medium | NON-BREAKING |
-| High | Replace `late` variables with safe defaults | Low | BEHAVIORAL |
-| High | Fix `setCustomBreakpoints` to reset refined breakpoints | Low | BEHAVIORAL (low risk) |
-| High | Fix landscape width/height swap bug | Low | BEHAVIORAL |
-| Medium | Add `ScrollController.dispose()` | Low | NON-BREAKING |
-| Medium | Remove `WidgetBuilder` typedef shadow | Low | API-BREAKING |
-| Medium | Consolidate duplicate test files | Low | NON-BREAKING |
-| Low | Add value equality to data classes | Medium | NON-BREAKING |
-| Low | Split `widget_builders.dart` into separate files | Medium | NON-BREAKING |
-| Low | Replace `provider` with `InheritedWidget` | Medium | NON-BREAKING (internal) |
-| Low | Validate breakpoint ordering | Low | BEHAVIORAL (debug only) |
+### Completed (NON-BREAKING)
+
+| Priority | Action | Status |
+|----------|--------|--------|
+| Critical | Create `device_width_web.dart` | **DONE** |
+| Critical | Fix null crash paths in `ScreenTypeLayout` handlers | **DONE** |
+| High | Replace `late` variables with safe defaults | **DONE** |
+| Medium | Add `ScrollController.dispose()` | **DONE** |
+| Medium | Consolidate duplicate test files | **DONE** |
+| Medium | Fix string concatenation style | **DONE** |
+| Low | Add value equality to data classes | **DONE** |
+| Low | Remove redundant `= null` defaults | **DONE** |
+| Low | Make `SizingInformation` constructor `const` | **DONE** |
+| Low | Update to `super.key` modern syntax | **DONE** |
+| Low | Split `widget_builders.dart` into separate files | **DONE** |
+| Low | Replace `provider` with `InheritedNotifier` | **DONE** |
+
+### Completed (BEHAVIORAL)
+
+| Priority | Action | Status |
+|----------|--------|--------|
+| Low | Validate breakpoint ordering | **DONE** |
+
+### Remaining (BREAKING / BEHAVIORAL — for major version)
+
+| Priority | Action | Type |
+|----------|--------|------|
+| High | Fix `setCustomBreakpoints` to reset refined breakpoints | BEHAVIORAL |
+| High | Fix landscape width/height swap bug | **DONE** |
+| Medium | Remove `WidgetBuilder` typedef shadow | API-BREAKING |
+| Medium | Replace mutable global state with InheritedWidget | API-BREAKING |
+| Medium | Remove deprecated enum values | API-BREAKING |

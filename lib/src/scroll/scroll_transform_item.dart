@@ -1,11 +1,12 @@
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
+import 'scroll_controller_scope.dart';
 
 /// A widget that applies scroll-based transformations to its child.
 ///
 /// This widget allows you to create dynamic scroll effects by transforming
 /// (scaling and/or translating) its child based on the scroll offset. It uses
-/// a [ScrollController] from the widget tree to track scroll position.
+/// a [ScrollController] from the widget tree (provided via
+/// [ScrollControllerScope]) to track scroll position.
 ///
 /// Example:
 /// ```dart
@@ -41,26 +42,23 @@ class ScrollTransformItem extends StatelessWidget {
   /// The [builder] parameter is required and must not be null.
   /// [offsetBuilder] and [scaleBuilder] are optional.
   const ScrollTransformItem({
-    Key? key,
+    super.key,
     required this.builder,
     this.offsetBuilder,
     this.scaleBuilder,
     this.logOffset = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ScrollController>(
-      builder: (context, value, child) {
-        final builtOffset = offsetBuilder?.call(value.offset);
-        return Transform.scale(
-          scale: scaleBuilder?.call(value.offset) ?? 1,
-          child: Transform.translate(
-            offset: builtOffset ?? Offset.zero,
-            child: builder(value.offset),
-          ),
-        );
-      },
+    final controller = ScrollControllerScope.of(context);
+    final builtOffset = offsetBuilder?.call(controller.offset);
+    return Transform.scale(
+      scale: scaleBuilder?.call(controller.offset) ?? 1,
+      child: Transform.translate(
+        offset: builtOffset ?? Offset.zero,
+        child: builder(controller.offset),
+      ),
     );
   }
 }
