@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'device_screen_type.dart';
 import 'helpers/helpers.dart';
 import 'sizing_information.dart';
 
