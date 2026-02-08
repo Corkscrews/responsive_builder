@@ -303,6 +303,108 @@ void main() {
     });
   });
 
+  group('getRefinedSize - Custom break points - Desktop', () {
+    tearDown(() => ResponsiveSizingConfig.instance.setCustomBreakpoints(null));
+
+    test(
+        'When called with desktop size in small range, should return RefinedSize.small',
+        () {
+      ResponsiveSizingConfig.instance
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
+      final breakPoint = RefinedBreakpoints(
+        desktopSmall: 1000,
+        desktopNormal: 1200,
+        desktopLarge: 1600,
+        desktopExtraLarge: 2000,
+      );
+      // Width 1050 on web/desktop → deviceWidth = 1050
+      // getDeviceType: 1050 >= 1000 (large) + isWebOrDesktop=true → desktop
+      // 1050 < desktopNormal (1200) → small
+      final refinedSize = getRefinedSize(
+        Size(1050, 800),
+        refinedBreakpoint: breakPoint,
+        isWebOrDesktop: true,
+      );
+      expect(refinedSize, RefinedSize.small);
+    });
+
+    test(
+        'When called with desktop size in normal range, should return RefinedSize.normal',
+        () {
+      ResponsiveSizingConfig.instance
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
+      final breakPoint = RefinedBreakpoints(
+        desktopSmall: 1000,
+        desktopNormal: 1200,
+        desktopLarge: 1600,
+        desktopExtraLarge: 2000,
+      );
+      final refinedSize = getRefinedSize(
+        Size(1300, 800),
+        refinedBreakpoint: breakPoint,
+        isWebOrDesktop: true,
+      );
+      expect(refinedSize, RefinedSize.normal);
+    });
+
+    test(
+        'When called with desktop size in large range, should return RefinedSize.large',
+        () {
+      ResponsiveSizingConfig.instance
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
+      final breakPoint = RefinedBreakpoints(
+        desktopSmall: 1000,
+        desktopNormal: 1200,
+        desktopLarge: 1600,
+        desktopExtraLarge: 2000,
+      );
+      final refinedSize = getRefinedSize(
+        Size(1700, 800),
+        refinedBreakpoint: breakPoint,
+        isWebOrDesktop: true,
+      );
+      expect(refinedSize, RefinedSize.large);
+    });
+
+    test(
+        'When called with desktop size in extraLarge range, should return RefinedSize.extraLarge',
+        () {
+      ResponsiveSizingConfig.instance
+          .setCustomBreakpoints(ScreenBreakpoints(small: 200, normal: 600, large: 1000));
+      final breakPoint = RefinedBreakpoints(
+        desktopSmall: 1000,
+        desktopNormal: 1200,
+        desktopLarge: 1600,
+        desktopExtraLarge: 2000,
+      );
+      final refinedSize = getRefinedSize(
+        Size(2100, 800),
+        refinedBreakpoint: breakPoint,
+        isWebOrDesktop: true,
+      );
+      expect(refinedSize, RefinedSize.extraLarge);
+    });
+  });
+
+  group('getRefinedSize - Custom break points - Watch', () {
+    tearDown(() => ResponsiveSizingConfig.instance.setCustomBreakpoints(null));
+
+    test(
+        'When called with watch size, should return RefinedSize.normal',
+        () {
+      ResponsiveSizingConfig.instance
+          .setCustomBreakpoints(ScreenBreakpoints(small: 300, normal: 600, large: 1000));
+      final breakPoint = RefinedBreakpoints();
+      // Width 150, shortestSide on mobile = 150 < 300 → watch
+      final refinedSize = getRefinedSize(
+        Size(150, 200),
+        refinedBreakpoint: breakPoint,
+        isWebOrDesktop: false,
+      );
+      expect(refinedSize, RefinedSize.normal);
+    });
+  });
+
   group('getRefinedSize -', () {
     setUp(() => ResponsiveSizingConfig.instance.setCustomBreakpoints(null));
     test(
@@ -464,6 +566,18 @@ void main() {
     });
   });
 
+  group('getRefinedSize - Default tablet small', () {
+    setUp(() => ResponsiveSizingConfig.instance.setCustomBreakpoints(null));
+
+    test('Should return small for tablet in small range', () {
+      // tabletSmall = 600, tabletNormal = 768
+      // shortestSide of (650, 800) = 650 → tablet, 650 < 768 → small
+      final refinedSize =
+          getRefinedSize(Size(650, 800), isWebOrDesktop: false);
+      expect(refinedSize, RefinedSize.small);
+    });
+  });
+
   group('getRefinedSize - Watch', () {
     setUp(() => ResponsiveSizingConfig.instance.setCustomBreakpoints(null));
 
@@ -570,6 +684,34 @@ void main() {
           ),
         ),
       );
+    });
+
+    testWidgets(
+        'returns desktop when preferDesktop is true and desktop is provided on tablet',
+        (tester) async {
+      ResponsiveAppUtil.preferDesktop = true;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(size: Size(700, 800)),
+            child: Builder(
+              builder: (context) {
+                expect(
+                  getValueForScreenType(
+                    context: context,
+                    isWebOrDesktop: false,
+                    mobile: 'mobile',
+                    desktop: 'desktop',
+                  ),
+                  'desktop',
+                );
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+      ResponsiveAppUtil.preferDesktop = false;
     });
   });
 

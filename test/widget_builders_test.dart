@@ -186,6 +186,24 @@ void main() {
       // Reset preferDesktop to false for other tests
       ResponsiveAppUtil.preferDesktop = false;
     });
+
+    testWidgets(
+        'falls back to tablet layout when desktop size but no desktop builder',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(size: Size(1200, 800)),
+            child: ScreenTypeLayout.builder(
+              isWebOrDesktop: true,
+              mobile: (_) => const Text('Mobile'),
+              tablet: (_) => const Text('Tablet'),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Tablet'), findsOneWidget);
+    });
   });
 
   group('ScreenTypeLayout.builder2', () {
