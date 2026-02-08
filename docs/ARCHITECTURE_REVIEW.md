@@ -1,6 +1,6 @@
 # Architecture Review
 
-**Package**: responsive_builder2 v0.8.9  
+**Package**: responsive_builder2 v0.9.0  
 **Date**: 2026-02-08
 
 ---
@@ -52,8 +52,9 @@ landscape) without scattering conditional logic throughout the codebase.
   Separate module:
   ┌─────────────────────┐    ┌──────────────────────┐
   │ScrollTransformView  │───▶│ScrollTransformItem   │
-  │ (ScrollController   │    │ (Consumer<Controller>)│
-  │  via Provider)      │    └──────────────────────┘
+  │ (ScrollController   │    │ (reads controller via │
+  │  via InheritedNoti- │    │  ScrollControllerScope)│
+  │  fier scope)        │    └──────────────────────┘
   └─────────────────────┘
 ```
 
@@ -73,8 +74,9 @@ landscape) without scattering conditional logic throughout the codebase.
 **Concerns**:
 - Global static state (`ResponsiveAppUtil.width/height/preferDesktop`) means
   only one `ResponsiveApp` can exist meaningfully
-- `late` variables have no safe default
-- Width/height swap in landscape is semantically incorrect
+- ~~`late` variables have no safe default~~ **FIXED** — defaults to `0`/`false`
+- ~~Width/height swap in landscape is semantically incorrect~~ **FIXED** —
+  width/height now taken directly from constraints
 - No lifecycle management (no disposal, no cleanup)
 
 **Recommendation**: Replace with `InheritedWidget` to scope configuration to
@@ -97,7 +99,7 @@ so breakpoint configs can be scoped per subtree.
 
 ### Layer 2: Builder Widgets
 
-#### `ResponsiveBuilder` (widget_builders.dart)
+#### `ResponsiveBuilder` (responsive_builder.dart)
 - **Role**: Core widget that provides `SizingInformation` to a builder function
 - **Pattern**: `LayoutBuilder` for local constraints + `MediaQuery.sizeOf()`
   for screen size
@@ -107,7 +109,7 @@ so breakpoint configs can be scoped per subtree.
 This is correct behavior for responsive layouts but may cause unnecessary
 rebuilds if only the screen-level size matters.
 
-#### `ScreenTypeLayout` (widget_builders.dart)
+#### `ScreenTypeLayout` (screen_type_layout.dart)
 - **Role**: Switch widget that shows different layouts per device type
 - **Pattern**: Three constructors (deprecated, builder, builder2) with
   internal dispatch
@@ -125,7 +127,7 @@ rebuilds if only the screen-level size matters.
 merging builder/builder2 into a single API with an optional
 `SizingInformation` parameter.
 
-#### `OrientationLayoutBuilder` (widget_builders.dart)
+#### `OrientationLayoutBuilder` (orientation_layout_builder.dart)
 - **Role**: Switch widget for portrait/landscape layouts
 - **Pattern**: `MediaQuery.orientationOf()` to detect orientation
 - **Quality**: Clean and simple
@@ -133,7 +135,7 @@ merging builder/builder2 into a single API with an optional
 **Note**: Uses `Builder` widget unnecessarily — could use `MediaQuery`
 directly in the build method.
 
-#### `RefinedLayoutBuilder` (widget_builders.dart)
+#### `RefinedLayoutBuilder` (refined_layout_builder.dart)
 - **Role**: Switch widget for refined size categories
 - **Pattern**: Uses `ResponsiveBuilder` internally
 - **Quality**: Good, follows same pattern as ScreenTypeLayout
@@ -148,7 +150,7 @@ directly in the build method.
 - **Quality**: Well-structured with clear thresholds
 
 **Concerns**:
-- `??=` assignment issue (line 31)
+- ~~`??=` assignment issue (line 31)~~ **FIXED**
 - Uses `width.deviceWidth()` correctly (via conditional import)
 
 #### `getRefinedSize` (helpers.dart)
@@ -204,21 +206,22 @@ the most critical architectural issue.
 
 #### `ScrollTransformView` + `ScrollTransformItem`
 - **Role**: Scroll-based visual effects (parallax, scaling)
-- **Pattern**: `ScrollController` shared via `Provider`
-- **Quality**: Functional but minimal
+- **Pattern**: `ScrollController` shared via `ScrollControllerScope`
+  (`InheritedNotifier`)
+- **Quality**: Functional with proper lifecycle management
 
-**Concerns**:
-- Adds `provider` as a package dependency for this single feature
-- Missing `dispose()` for ScrollController
+**Status**: Several concerns from the original review have been addressed:
+- ~~Adds `provider` as a package dependency for this single feature~~ **FIXED**
+  — replaced with built-in `ScrollControllerScope` (`InheritedNotifier`)
+- ~~Missing `dispose()` for ScrollController~~ **FIXED** — controller is now
+  properly disposed in `_ScrollTransformViewState.dispose()`
+- `ScrollControllerScope.of(context)` includes an assertion that provides a
+  clear error message when used outside a `ScrollTransformView`
+
+**Remaining concern**:
 - `ScrollTransformItem` extends `StatelessWidget` but accesses
   `ScrollController` — should verify controller has clients before accessing
   `.offset`
-- Tightly coupled: `ScrollTransformItem` only works inside
-  `ScrollTransformView` (or a `ChangeNotifierProvider<ScrollController>`)
-  but this constraint isn't enforced
-
-**Recommendation**: Replace `Provider` with `InheritedNotifier<ScrollController>`
-to eliminate the `provider` dependency while maintaining the same functionality.
 
 ---
 
@@ -232,14 +235,15 @@ to eliminate the `provider` dependency while maintaining the same functionality.
 | Global Mutable State | `ResponsiveAppUtil` | Anti-pattern; should use InheritedWidget |
 | Builder Pattern | `ResponsiveBuilder`, `ScreenTypeLayout` | Good use; core strength of the package |
 | Conditional Import | `device_width.dart` | Good idea but incomplete implementation |
-| Provider (DI) | `ScrollTransformView` | Overkill; adds dependency for minimal use |
+| InheritedNotifier (DI) | `ScrollControllerScope` | Clean; zero external dependencies |
 | Strategy Pattern | `getDeviceType`, `getRefinedSize` | Good; allows swappable breakpoints |
 
 ### Missing Patterns
 
 1. **InheritedWidget**: Should replace global state for `preferDesktop`,
    screen dimensions, and breakpoint config
-2. **Dispose Pattern**: `ScrollTransformView` creates resources without cleanup
+2. ~~**Dispose Pattern**: `ScrollTransformView` creates resources without
+   cleanup~~ **FIXED** — `ScrollController` is now properly disposed
 3. **Factory/Builder for Breakpoints**: Could provide named constructors for
    common device breakpoint presets (e.g., `ScreenBreakpoints.material()`,
    `ScreenBreakpoints.apple()`)
@@ -310,33 +314,33 @@ to eliminate the `provider` dependency while maintaining the same functionality.
 
 ## Recommended Architecture Changes
 
-### Short-term (Non-breaking) — Safe for patch/minor release
+### Short-term — Completed in v0.9.0
 
-All items below are **NON-BREAKING** or **BEHAVIORAL** bug fixes with low
-consumer risk. No public API signatures change. Suitable for a patch version.
+All items below have been implemented and released.
 
-| # | Change | Breaking? |
-|---|--------|-----------|
-| 1 | Create the missing `device_width_web.dart` | NON-BREAKING |
-| 2 | Fix null-safety issues in `ScreenTypeLayout` handlers | NON-BREAKING (crash -> graceful fallback) |
-| 3 | Add `dispose()` to `ScrollTransformView` | NON-BREAKING |
-| 4 | Add breakpoint validation assertions | BEHAVIORAL (debug only, catches invalid inputs) |
-| 5 | Initialize `ResponsiveAppUtil` with safe defaults | BEHAVIORAL (crash -> zero default) |
+| # | Change | Status |
+|---|--------|--------|
+| 1 | Create the missing `device_width_web.dart` | Was already present |
+| 2 | Fix null-safety issues in `ScreenTypeLayout` handlers | **DONE** |
+| 3 | Add `dispose()` to `ScrollTransformView` | **DONE** |
+| 4 | Add breakpoint validation assertions | **DONE** |
+| 5 | Initialize `ResponsiveAppUtil` with safe defaults | **DONE** |
+| 6 | Split `widget_builders.dart` into per-widget files | **DONE** |
+| 7 | Replace `provider` dependency with `InheritedNotifier` | **DONE** |
+| 8 | Fix landscape width/height swap in `setScreenSize` | **DONE** |
+| 9 | Add value equality to data classes | **DONE** |
+| 10 | Fix `??=` double assignment in `getDeviceType` | **DONE** |
 
-### Medium-term (Minor breaking) — Requires minor version bump
+### Medium-term — Requires minor version bump
 
-These items change public API signatures or observable behavior. Consumer code
-may need minor updates. Should be batched into a single minor release with
-migration guide.
+These items change public API signatures. Consumer code may need minor
+updates. Should be batched into a single release with migration guide.
 
 | # | Change | Breaking? | Migration |
 |---|--------|-----------|-----------|
 | 1 | Rename `WidgetBuilder` typedef to `ResponsiveWidgetBuilder` | API-BREAKING | Find-and-replace import |
 | 2 | Make `ResponsiveAppUtil` private (prefix with `_`) | API-BREAKING | Consumers using `ResponsiveAppUtil.preferDesktop` directly must switch to `ResponsiveApp(preferDesktop:)` |
-| 3 | Split `widget_builders.dart` into per-widget files | NON-BREAKING | No consumer changes if exports remain in barrel file |
-| 4 | Split `sizing_information.dart` into data classes and breakpoint classes | NON-BREAKING | No consumer changes if exports remain in barrel file |
-| 5 | Replace `provider` dependency with `InheritedNotifier` | NON-BREAKING | Internal refactor; `ScrollTransformView`/`ScrollTransformItem` API unchanged |
-| 6 | Fix landscape width/height swap in `setScreenSize` | BEHAVIORAL | Apps using `screenWidth`/`screenHeight` in landscape get correct values; visuals may shift |
+| 3 | Split `sizing_information.dart` into data classes and breakpoint classes | NON-BREAKING | No consumer changes if exports remain in barrel file |
 
 ### Long-term (Major refactor) — Requires major version bump
 
@@ -358,15 +362,14 @@ patterns. Consumer code will require non-trivial migration.
 ```
 responsive_builder2
 ├── flutter (SDK)
-├── provider ^6.1.5
-│   └── (only used by ScrollTransformView/Item)
 └── universal_platform ^1.1.0
     └── (used for platform detection in helpers.dart)
 ```
 
-**Assessment**: The dependency footprint is light. The `provider` dependency
-could be eliminated by using Flutter's built-in `InheritedNotifier`, reducing
-the package's footprint to a single non-SDK dependency (`universal_platform`).
+**Assessment**: The dependency footprint is minimal — a single non-SDK
+dependency (`universal_platform`). The `provider` dependency was removed in
+v0.9.0 and replaced with a built-in `ScrollControllerScope`
+(`InheritedNotifier`).
 
 ---
 
@@ -374,28 +377,37 @@ the package's footprint to a single non-SDK dependency (`universal_platform`).
 
 The package has a solid foundational design with clear separation between
 detection logic (helpers), configuration (config singleton), and presentation
-(widget builders). The main architectural weaknesses are:
+(widget builders). Following the v0.9.0 improvements, the main remaining
+architectural weaknesses are:
 
 1. **Global mutable state** instead of widget-tree-scoped state
-2. **Incomplete platform abstraction** (missing web file)
-3. **Null-safety gaps** in the most critical widget (`ScreenTypeLayout`)
-4. **Over-reliance on a singleton** for configuration
+2. **Over-reliance on a singleton** for configuration
+3. **Mixed naming** (`mobile` vs `phone`) across the API
 
-### Breaking Change Summary Across All Phases
+Previously identified issues that have been resolved:
+- ~~Incomplete platform abstraction~~ (web file exists)
+- ~~Null-safety gaps in `ScreenTypeLayout`~~ (fixed)
+- ~~`provider` dependency for a single feature~~ (replaced with
+  `InheritedNotifier`)
+- ~~Missing `ScrollController` disposal~~ (fixed)
+- ~~Landscape width/height swap~~ (fixed)
+- ~~No breakpoint validation~~ (assertions added)
 
-| Phase | Total items | NON-BREAKING | BEHAVIORAL | API-BREAKING |
-|-------|-------------|-------------|------------|--------------|
-| Short-term | 5 | 3 | 2 | 0 |
-| Medium-term | 6 | 3 | 1 | 2 |
-| Long-term | 5 | 0 | 0 | 5 |
-| **Total** | **16** | **6** | **3** | **7** |
+### Remaining Work Summary
 
-The short-term fixes (5 items, all non-breaking or behavioral) address all
-critical and high-severity bugs while maintaining full backward compatibility.
-They can be safely released as a **patch version** (0.8.9).
+| Phase | Total items | NON-BREAKING | API-BREAKING |
+|-------|-------------|-------------|--------------|
+| Short-term | 10 | — | — |
+| Medium-term | 3 | 1 | 2 |
+| Long-term | 5 | 0 | 5 |
+| **Total remaining** | **8** | **1** | **7** |
 
-The medium-term changes (6 items, 2 API-breaking) improve code quality and
-should be batched into a **minor version** (0.9.0) with a migration guide.
+The short-term fixes (10 items) have all been completed and released in
+v0.9.0.
+
+The medium-term changes (3 remaining items, 2 API-breaking) improve API
+clarity and should be batched into a future minor release with a migration
+guide.
 
 The long-term refactors (5 items, all API-breaking) are best reserved for a
 **major version** (1.0.0) with comprehensive migration documentation.
