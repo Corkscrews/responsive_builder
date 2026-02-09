@@ -3,7 +3,7 @@ name: 📦 Publish to pub.dev
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'  # Matches tags like 0.8.6
+      - '[0-9]*.[0-9]*.[0-9]*'  # Matches tags like 0.8.6
   workflow_dispatch:
 
 jobs:
@@ -15,14 +15,13 @@ jobs:
       - name: 🔄 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🔑 Setup OIDC token
-        uses: dart-lang/setup-dart@v1
-
-      - name: Set up Flutter
+      - name: 🎯 Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.6'
           channel: 'stable'
+
+      - name: 🔑 Setup OIDC token
+        uses: dart-lang/setup-dart@v1
 
       - name: 📥 Install dependencies
         run: flutter pub get
